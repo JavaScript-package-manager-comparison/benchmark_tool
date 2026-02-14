@@ -3,7 +3,7 @@ set -e
 
 # Default values
 REPO_URL=${REPO_URL:-"https://github.com/JavaScript-package-manager-comparison/metacubexd.git"}
-RUNS=${RUNS:-3}
+RUNS=${RUNS:-2}
 WARMUP=${WARMUP:-1}
 RESULTS_DIR=${RESULTS_DIR:-"/results"}
 
