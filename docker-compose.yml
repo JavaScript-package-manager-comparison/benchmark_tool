@@ -1,0 +1,9 @@
+services:
+  benchmark:
+    build: .
+    volumes:
+      - ./results:/results
+    environment:
+      - REPO_URL=https://github.com/JavaScript-package-manager-comparison/metacubexd.git
+      - RUNS=3
+      - WARMUP=1
