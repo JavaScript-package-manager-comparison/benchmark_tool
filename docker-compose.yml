@@ -5,5 +5,5 @@ services:
       - ./results:/results
     environment:
       - REPO_URL=https://github.com/JavaScript-package-manager-comparison/metacubexd.git
-      - RUNS=2
+      - RUNS=1
       - WARMUP=1
