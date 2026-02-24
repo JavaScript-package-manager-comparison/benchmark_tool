@@ -164,7 +164,7 @@ EOF
 declare -A npm_config
 npm_config[version]="11.10"
 npm_config[install_cmd]="npm install --force --legacy-peer-deps"
-npm_config[frozen_cmd]="npm install --force --legacy-peer-deps"  # npm ci fails on peer deps in this project
+npm_config[frozen_cmd]="npm install --force --legacy-peer-deps"
 npm_config[offline_cmd]="npm install --prefer-offline --force --legacy-peer-deps"
 npm_config[lockfile_cache_cmd]="npm install --prefer-offline --force --legacy-peer-deps"
 npm_config[prepare_cmd]="npm cache clean --force"
@@ -208,12 +208,25 @@ pnpm_config[disk_dir]="node_modules"
 pnpm_config[note]="pnpm (${pnpm_config[version]})"
 pnpm_config[activate_cmd]="corepack prepare pnpm@latest --activate"
 
+# bun
+declare -A bun_config
+bun_config[version]="bun@1.3.9"
+bun_config[install_cmd]="bun install"
+bun_config[frozen_cmd]="bun install --frozen-lockfile"
+bun_config[offline_cmd]="bun install --no-install"
+bun_config[lockfile_cache_cmd]="bun install --no-install --frozen-lockfile"
+bun_config[prepare_cmd]="bun pm cache rm"
+bun_config[disk_dir]="node_modules"
+bun_config[note]="Bun (${bun_config[version]})"
+bun_config[activate_cmd]="curl -fsSL https://bun.sh/install | bash && export PATH=/root/.bun/bin:$PATH && bun --version"
+
 # Active managers and scenarios
 ACTIVE_MANAGERS=(
   "npm"
   "yarn-classic"
   "yarn-berry"
   "pnpm"
+  "bun"
 )
 
 ACTIVE_SCENARIOS=(
@@ -234,6 +247,7 @@ for manager in "${ACTIVE_MANAGERS[@]}"; do
     yarn-classic) config_name="yarn_classic_config" ;;
     yarn-berry) config_name="yarn_berry_config" ;;
     pnpm) config_name="pnpm_config" ;;
+    bun) config_name="bun_config" ;;
   esac
 
   for scenario in "${ACTIVE_SCENARIOS[@]}"; do

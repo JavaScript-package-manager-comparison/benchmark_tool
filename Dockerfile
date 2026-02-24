@@ -1,7 +1,7 @@
 FROM ubuntu:24.04
 
 RUN apt-get update -qq && \
-    apt-get install -y git curl ca-certificates gnupg jq build-essential -qq && \
+    apt-get install -y git curl ca-certificates gnupg jq build-essential unzip -qq && \
     rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /etc/apt/keyrings && \
