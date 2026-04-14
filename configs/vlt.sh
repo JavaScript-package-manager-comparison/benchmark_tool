@@ -1,0 +1,12 @@
+declare -A vlt_config
+vlt_config[version]="1.0.0-rc.24"
+vlt_config[full_install]="vlt install --allow-scripts='*' --yes"
+#vlt_config[lockfile_update]="vlt install --lockfile-only --allow-scripts='*' --yes"
+vlt_config[ci_install]="vlt ci --allow-scripts='*' --yes"
+vlt_config[offline_install]="vlt install --allow-scripts='*' --yes"
+vlt_config[offline_ci_install]="vlt ci --allow-scripts='*' --yes"
+vlt_config[clean_cache_cmd]="rm -rf ~/.cache/vlt ~/.local/share/vlt /root/.cache/vlt /root/.local/share/vlt 2>/dev/null || true"
+vlt_config[disk_dir]="node_modules"
+vlt_config[lockfile]="vlt-lock.json"
+vlt_config[note]="vlt (${vlt_config[version]})"
+vlt_config[activate_cmd]="npm install -g vlt && vlt --version"
