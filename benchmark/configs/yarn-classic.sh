@@ -1,0 +1,11 @@
+declare -A yarn_classic_config
+yarn_classic_config[version]="yarn@1.22.22"
+yarn_classic_config[full_install]="yarn install --force --registry https://registry.npmjs.org"
+yarn_classic_config[ci_install]="yarn install --frozen-lockfile --force"
+yarn_classic_config[offline_install]="yarn install --offline --force"
+yarn_classic_config[offline_ci_install]="yarn install --offline --frozen-lockfile --force"
+yarn_classic_config[clean_cache_cmd]="yarn cache clean"
+yarn_classic_config[disk_dir]="node_modules"
+yarn_classic_config[lockfile]="yarn.lock"
+yarn_classic_config[note]="Yarn Classic (${yarn_classic_config[version]})"
+yarn_classic_config[activate_cmd]="corepack prepare yarn@1 --activate"

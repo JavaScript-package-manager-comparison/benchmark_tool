@@ -1,0 +1,11 @@
+declare -A deno_config
+deno_config[version]="deno@2.7"
+deno_config[full_install]="deno install --node-modules-dir=auto --allow-scripts"
+deno_config[ci_install]="deno install --node-modules-dir=auto --frozen --allow-scripts"
+deno_config[offline_install]="deno install --node-modules-dir=auto --cached-only --allow-scripts"
+deno_config[offline_ci_install]="deno install --node-modules-dir=auto --frozen --cached-only --allow-scripts"
+deno_config[clean_cache_cmd]="deno clean"
+deno_config[disk_dir]="node_modules"
+deno_config[lockfile]="deno.lock"
+deno_config[note]="Deno v${deno_config[version]}"
+deno_config[activate_cmd]="curl -fsSL https://deno.land/install.sh | sh && export DENO_INSTALL=\$HOME/.deno && export PATH=\$DENO_INSTALL/bin:\$PATH && deno --version"

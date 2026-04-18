@@ -1,0 +1,11 @@
+declare -A yarn_zpm_config
+yarn_zpm_config[version]="yarn@6.0.0-rc.15"
+yarn_zpm_config[full_install]="yarn install"
+yarn_zpm_config[ci_install]="yarn install --immutable"
+yarn_zpm_config[offline_install]="yarn install --immutable-cache"
+yarn_zpm_config[offline_ci_install]="yarn install --immutable --immutable-cache"
+yarn_zpm_config[clean_cache_cmd]="yarn cache clean && rm -rf .yarn/cache"
+yarn_zpm_config[disk_dir]="node_modules"
+yarn_zpm_config[lockfile]="yarn.lock"
+yarn_zpm_config[note]="Yarn ZPM (${yarn_zpm_config[version]}, node-modules mode)"
+yarn_zpm_config[activate_cmd]="curl -s https://repo.yarnpkg.com/install | bash && export PATH=\"\$HOME/.yarn/bin:\$PATH\" && yarn set version 6.0.0-rc.15 && yarn --version"

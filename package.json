@@ -11,19 +11,24 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.102",
-    "@iconify-json/simple-icons": "^1.2.78",
     "@nuxt/eslint": "1.15.2",
     "@nuxt/image": "2.0.0",
     "@nuxt/ui": "^4.6.1",
     "@pinia/colada-nuxt": "0.3.2",
     "@pinia/nuxt": "0.11.3",
     "nuxt": "^4.4.2",
-    "tailwindcss": "^4.2.2",
+    "vue": "^3.5.32",
+    "vue-router": "^5.0.4",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.12",
+    "@iconify-json/lucide": "^1.2.102",
+    "@iconify-json/simple-icons": "^1.2.78",
+    "@pinia/colada-devtools": "^0.4.5",
+    "@types/node": "^25.6.0",
     "eslint": "^10.2.0",
+    "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",
     "vue-tsc": "^3.2.6"
   },

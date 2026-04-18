@@ -5,27 +5,25 @@ export default defineNuxtConfig({
     '@pinia/colada-nuxt',
     '@pinia/nuxt',
     '@nuxt/image',
-    '@nuxt/eslint'
+    '@nuxt/eslint',
   ],
 
   devtools: {
-    enabled: true
+    enabled: true,
+  },
+  app: {
+    head: {
+      title: 'JavaScript Package Manager benchmark',
+    },
   },
 
   css: ['~/assets/css/main.css'],
 
-  routeRules: {
-    '/': { prerender: true }
+  experimental: {
+    cookieStore: true,
   },
 
   compatibilityDate: '2025-01-15',
 
-  eslint: {
-    config: {
-      stylistic: {
-        commaDangle: 'never',
-        braceStyle: '1tbs'
-      }
-    }
-  }
+  eslint: { config: {} },
 })

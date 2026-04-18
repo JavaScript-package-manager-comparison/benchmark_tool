@@ -1,0 +1,11 @@
+declare -A cotton_config
+cotton_config[version]="cotton@git"
+cotton_config[full_install]="cotton install"
+cotton_config[ci_install]="cotton install"
+cotton_config[offline_install]="cotton install"
+cotton_config[offline_ci_install]="cotton install"
+cotton_config[clean_cache_cmd]="true"
+cotton_config[disk_dir]="node_modules"
+cotton_config[lockfile]="cotton.lock"
+cotton_config[note]="Cotton (from source)"
+cotton_config[activate_cmd]="cargo install --locked --git https://github.com/danielhuang/cotton && cotton --version"
