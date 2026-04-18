@@ -95,24 +95,22 @@ save_result() {
   fi
 
   disk_usage=$(du -sh "$disk_dir" 2>/dev/null | cut -f1 || echo "N/A")
-  repo_name=$(basename "$REPO_URL" .git)
-  timestamp=$(date +"%Y%m%d_%H%M%S")
-  result_file="$RESULTS_DIR/benchmark_${manager}_${scenario}_${repo_name}_${timestamp}.json"
+  local time_data
+  time_data=$(jq '.results[0] // "N/A (failed)"' "/tmp/hyperfine_${manager}_${scenario}.json" 2>/dev/null || echo '"N/A (failed)"')
 
-  cat > "$result_file" <<EOF
+  cat > "/tmp/result_entry_${manager}_${scenario}.json" <<EOF
 {
-  "repo_url": "$REPO_URL",
-  "project_key": "medium",
-  "manager": "$manager",
-  "scenario": "$scenario",
-  "timestamp": "$(date -Iseconds)",
-  "hyperfine_runs": $RUNS,
-  "hyperfine_warmup": $WARMUP,
-  "time": $(jq '.results[0] // "N/A (failed)"' "/tmp/hyperfine_${manager}_${scenario}.json" 2>/dev/null || echo '"N/A (failed)"'),
+  "time": $time_data,
   "disk_usage": "$disk_usage",
   "note": "${config[note]} - $scenario"
 }
 EOF
 
-  echo "Wynik zapisany: $result_file"
+  jq --arg manager "$manager" --arg scenario "$scenario" --slurpfile entry "/tmp/result_entry_${manager}_${scenario}.json" '
+    .scenarios[$scenario][$manager] = $entry[0]
+  ' "$RESULTS_JSON" > /tmp/tmp_results.json && mv /tmp/tmp_results.json "$RESULTS_JSON"
+
+  rm -f "/tmp/result_entry_${manager}_${scenario}.json"
+
+  echo "Wynik zapisany: $RESULTS_JSON (scenariusz: $scenario | narzędzie: $manager)"
 }

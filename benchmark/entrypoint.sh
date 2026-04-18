@@ -55,6 +55,26 @@ ACTIVE_SCENARIOS=(
 
 echo "Starting benchmark for ${#ACTIVE_MANAGERS[@]} managers × ${#ACTIVE_SCENARIOS[@]} scenarios"
 
+repo_name=$(basename "$REPO_URL" .git)
+global_timestamp=$(date +"%Y%m%d_%H%M%S")
+START_TIME=$(date -Iseconds)
+RESULTS_JSON="$RESULTS_DIR/${repo_name}_${global_timestamp}.json"
+
+mkdir -p "$RESULTS_DIR"
+
+cat > "$RESULTS_JSON" <<EOF
+{
+  "start_time": "$START_TIME",
+  "repo_url": "$REPO_URL",
+  "project_key": "medium",
+  "hyperfine_runs": $RUNS,
+  "hyperfine_warmup": $WARMUP,
+  "scenarios": {}
+}
+EOF
+
+echo "Results will be saved in: $RESULTS_JSON"
+
 for manager in "${ACTIVE_MANAGERS[@]}"; do
   for scenario in "${ACTIVE_SCENARIOS[@]}"; do
     run_benchmark "$manager" "$scenario"
@@ -62,6 +82,6 @@ for manager in "${ACTIVE_MANAGERS[@]}"; do
 done
 
 echo "=================================================================="
-echo "All benchmarks completed! Results in: $RESULTS_DIR"
-echo "All benchmarks : $RESULTS_DIR"
+echo "All benchmarks completed! Results in: $RESULTS_JSON"
+echo "All benchmarks : $RESULTS_JSON"
 echo "=================================================================="
