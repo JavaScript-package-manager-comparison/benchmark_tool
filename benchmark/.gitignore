@@ -1,3 +1,2 @@
 .idea/
-results/*.json
-
+#results/*.json

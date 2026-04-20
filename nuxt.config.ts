@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxt/image',
     '@nuxt/eslint',
+    '@vueuse/nuxt',
   ],
 
   devtools: {

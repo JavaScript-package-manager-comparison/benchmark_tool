@@ -1,0 +1,853 @@
+{
+  "start_time": "2026-04-18T23:08:03+00:00",
+  "repo_url": "https://github.com/JavaScript-package-manager-comparison/metacubexd.git",
+  "project_key": "medium",
+  "hyperfine_runs": 1,
+  "hyperfine_warmup": 1,
+  "scenarios": {
+    "clean": {
+      "yarn-berry": {
+        "time": {
+          "command": "bash -c 'yarn install'",
+          "mean": 7.7447415031,
+          "stddev": null,
+          "median": 7.7447415031,
+          "user": 14.826600759999998,
+          "system": 2.73219996,
+          "min": 7.7447415031,
+          "max": 7.7447415031,
+          "times": [
+            7.7447415031
+          ],
+          "memory_usage_byte": [
+            2641940480
+          ],
+          "exit_codes": [
+            1
+          ]
+        },
+        "disk_usage": "N/A",
+        "note": "Yarn Berry (yarn@4.13.0, node-modules mode) - clean"
+      },
+      "pnpm": {
+        "time": {
+          "command": "bash -c 'pnpm install'",
+          "mean": 9.87826820852,
+          "stddev": null,
+          "median": 9.87826820852,
+          "user": 15.511276259999999,
+          "system": 8.267648939999999,
+          "min": 9.87826820852,
+          "max": 9.87826820852,
+          "times": [
+            9.87826820852
+          ],
+          "memory_usage_byte": [
+            1806012416
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "679M",
+        "note": "pnpm (pnpm@10.33.0) - clean"
+      },
+      "bun": {
+        "time": {
+          "command": "bash -c 'bun install'",
+          "mean": 4.68181182964,
+          "stddev": null,
+          "median": 4.68181182964,
+          "user": 3.81840082,
+          "system": 3.89299106,
+          "min": 4.68181182964,
+          "max": 4.68181182964,
+          "times": [
+            4.68181182964
+          ],
+          "memory_usage_byte": [
+            585547776
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "739M",
+        "note": "Bun (bun@1.3.11) - clean"
+      },
+      "yarn-zpm": {
+        "time": {
+          "command": "bash -c 'yarn install'",
+          "mean": 4.3872600020200005,
+          "stddev": null,
+          "median": 4.3872600020200005,
+          "user": 3.3515547999999997,
+          "system": 1.10742264,
+          "min": 4.3872600020200005,
+          "max": 4.3872600020200005,
+          "times": [
+            4.3872600020200005
+          ],
+          "memory_usage_byte": [
+            1594204160
+          ],
+          "exit_codes": [
+            1
+          ]
+        },
+        "disk_usage": "N/A",
+        "note": "Yarn ZPM (yarn@6.0.0-rc.15, node-modules mode) - clean"
+      },
+      "cotton": {
+        "time": {
+          "command": "bash -c 'cotton install'",
+          "mean": 2.7585207835,
+          "stddev": null,
+          "median": 2.7585207835,
+          "user": 4.54374814,
+          "system": 3.6939298199999997,
+          "min": 2.7585207835,
+          "max": 2.7585207835,
+          "times": [
+            2.7585207835
+          ],
+          "memory_usage_byte": [
+            2504704000
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "750M",
+        "note": "Cotton (from source) - clean"
+      }
+    },
+    "lockfile_only": {
+      "yarn-berry": {
+        "time": {
+          "command": "bash -c 'yarn install --immutable'",
+          "mean": 4.21551981164,
+          "stddev": null,
+          "median": 4.21551981164,
+          "user": 11.25245736,
+          "system": 2.3007251799999997,
+          "min": 4.21551981164,
+          "max": 4.21551981164,
+          "times": [
+            4.21551981164
+          ],
+          "memory_usage_byte": [
+            2558074880
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "N/A",
+        "note": "Yarn Berry (yarn@4.13.0, node-modules mode) - lockfile_only"
+      },
+      "pnpm": {
+        "time": {
+          "command": "bash -c 'pnpm install --frozen-lockfile'",
+          "mean": 6.53599640984,
+          "stddev": null,
+          "median": 6.53599640984,
+          "user": 11.89920536,
+          "system": 8.754554500000001,
+          "min": 6.53599640984,
+          "max": 6.53599640984,
+          "times": [
+            6.53599640984
+          ],
+          "memory_usage_byte": [
+            1361244160
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "679M",
+        "note": "pnpm (pnpm@10.33.0) - lockfile_only"
+      },
+      "bun": {
+        "time": {
+          "command": "bash -c 'bun install --frozen-lockfile'",
+          "mean": 4.531970286939999,
+          "stddev": null,
+          "median": 4.531970286939999,
+          "user": 3.73038186,
+          "system": 3.7772257599999994,
+          "min": 4.531970286939999,
+          "max": 4.531970286939999,
+          "times": [
+            4.531970286939999
+          ],
+          "memory_usage_byte": [
+            547500032
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "739M",
+        "note": "Bun (bun@1.3.11) - lockfile_only"
+      },
+      "yarn-zpm": {
+        "time": {
+          "command": "bash -c 'yarn install --immutable'",
+          "mean": 2.5640643090000004,
+          "stddev": null,
+          "median": 2.5640643090000004,
+          "user": 1.92246776,
+          "system": 0.7392319199999999,
+          "min": 2.5640643090000004,
+          "max": 2.5640643090000004,
+          "times": [
+            2.5640643090000004
+          ],
+          "memory_usage_byte": [
+            972587008
+          ],
+          "exit_codes": [
+            1
+          ]
+        },
+        "disk_usage": "N/A",
+        "note": "Yarn ZPM (yarn@6.0.0-rc.15, node-modules mode) - lockfile_only"
+      },
+      "cotton": {
+        "time": {
+          "command": "bash -c 'cotton install'",
+          "mean": 0.4155292653,
+          "stddev": null,
+          "median": 0.4155292653,
+          "user": 0.11814685999999999,
+          "system": 1.67635344,
+          "min": 0.4155292653,
+          "max": 0.4155292653,
+          "times": [
+            0.4155292653
+          ],
+          "memory_usage_byte": [
+            48271360
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "750M",
+        "note": "Cotton (from source) - lockfile_only"
+      }
+    },
+    "cache_only": {
+      "yarn-berry": {
+        "time": {
+          "command": "bash -c 'yarn install'",
+          "mean": 2.26282463642,
+          "stddev": null,
+          "median": 2.26282463642,
+          "user": 2.72953374,
+          "system": 0.27653834,
+          "min": 2.26282463642,
+          "max": 2.26282463642,
+          "times": [
+            2.26282463642
+          ],
+          "memory_usage_byte": [
+            668475392
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "N/A",
+        "note": "Yarn Berry (yarn@4.13.0, node-modules mode) - cache_only"
+      },
+      "pnpm": {
+        "time": {
+          "command": "bash -c 'pnpm install --offline'",
+          "mean": 6.65787960864,
+          "stddev": null,
+          "median": 6.65787960864,
+          "user": 10.1192,
+          "system": 4.27217582,
+          "min": 6.65787960864,
+          "max": 6.65787960864,
+          "times": [
+            6.65787960864
+          ],
+          "memory_usage_byte": [
+            1081163776
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "700M",
+        "note": "pnpm (pnpm@10.33.0) - cache_only"
+      },
+      "bun": {
+        "time": {
+          "command": "bash -c 'bun install'",
+          "mean": 2.80318488112,
+          "stddev": null,
+          "median": 2.80318488112,
+          "user": 2.7162231,
+          "system": 1.25505418,
+          "min": 2.80318488112,
+          "max": 2.80318488112,
+          "times": [
+            2.80318488112
+          ],
+          "memory_usage_byte": [
+            297558016
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "739M",
+        "note": "Bun (bun@1.3.11) - cache_only"
+      },
+      "yarn-zpm": {
+        "time": {
+          "command": "bash -c 'yarn install --immutable-cache'",
+          "mean": 2.9382858898,
+          "stddev": null,
+          "median": 2.9382858898,
+          "user": 2.06642922,
+          "system": 0.55971314,
+          "min": 2.9382858898,
+          "max": 2.9382858898,
+          "times": [
+            2.9382858898
+          ],
+          "memory_usage_byte": [
+            1231245312
+          ],
+          "exit_codes": [
+            1
+          ]
+        },
+        "disk_usage": "N/A",
+        "note": "Yarn ZPM (yarn@6.0.0-rc.15, node-modules mode) - cache_only"
+      },
+      "cotton": {
+        "time": {
+          "command": "bash -c 'cotton install'",
+          "mean": 1.73801004374,
+          "stddev": null,
+          "median": 1.73801004374,
+          "user": 3.0044599,
+          "system": 1.82202552,
+          "min": 1.73801004374,
+          "max": 1.73801004374,
+          "times": [
+            1.73801004374
+          ],
+          "memory_usage_byte": [
+            2504556544
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "750M",
+        "note": "Cotton (from source) - cache_only"
+      }
+    },
+    "node_modules_only": {
+      "yarn-berry": {
+        "time": {
+          "command": "bash -c 'yarn install'",
+          "mean": 5.78585681082,
+          "stddev": null,
+          "median": 5.78585681082,
+          "user": 13.71864676,
+          "system": 2.5210205599999997,
+          "min": 5.78585681082,
+          "max": 5.78585681082,
+          "times": [
+            5.78585681082
+          ],
+          "memory_usage_byte": [
+            2583441408
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "8.0K",
+        "note": "Yarn Berry (yarn@4.13.0, node-modules mode) - node_modules_only"
+      },
+      "pnpm": {
+        "time": {
+          "command": "bash -c 'pnpm install'",
+          "mean": 6.2209603616399995,
+          "stddev": null,
+          "median": 6.2209603616399995,
+          "user": 11.01048294,
+          "system": 4.353068659999999,
+          "min": 6.2209603616399995,
+          "max": 6.2209603616399995,
+          "times": [
+            6.2209603616399995
+          ],
+          "memory_usage_byte": [
+            1389101056
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "700M",
+        "note": "pnpm (pnpm@10.33.0) - node_modules_only"
+      },
+      "bun": {
+        "time": {
+          "command": "bash -c 'bun install'",
+          "mean": 1.8293319393599998,
+          "stddev": null,
+          "median": 1.8293319393599998,
+          "user": 2.52148862,
+          "system": 0.37491496,
+          "min": 1.8293319393599998,
+          "max": 1.8293319393599998,
+          "times": [
+            1.8293319393599998
+          ],
+          "memory_usage_byte": [
+            283144192
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "739M",
+        "note": "Bun (bun@1.3.11) - node_modules_only"
+      },
+      "yarn-zpm": {
+        "time": {
+          "command": "bash -c 'yarn install'",
+          "mean": 3.73789302878,
+          "stddev": null,
+          "median": 3.73789302878,
+          "user": 3.2727370199999997,
+          "system": 1.14744436,
+          "min": 3.73789302878,
+          "max": 3.73789302878,
+          "times": [
+            3.73789302878
+          ],
+          "memory_usage_byte": [
+            1680363520
+          ],
+          "exit_codes": [
+            1
+          ]
+        },
+        "disk_usage": "N/A",
+        "note": "Yarn ZPM (yarn@6.0.0-rc.15, node-modules mode) - node_modules_only"
+      },
+      "cotton": {
+        "time": {
+          "command": "bash -c 'cotton install'",
+          "mean": 1.37537675806,
+          "stddev": null,
+          "median": 1.37537675806,
+          "user": 2.77959794,
+          "system": 0.31367288,
+          "min": 1.37537675806,
+          "max": 1.37537675806,
+          "times": [
+            1.37537675806
+          ],
+          "memory_usage_byte": [
+            2504318976
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "750M",
+        "note": "Cotton (from source) - node_modules_only"
+      }
+    },
+    "node_modules_lockfile": {
+      "yarn-berry": {
+        "time": {
+          "command": "bash -c 'yarn install --immutable'",
+          "mean": 4.39195104644,
+          "stddev": null,
+          "median": 4.39195104644,
+          "user": 11.483703760000001,
+          "system": 2.2036594399999996,
+          "min": 4.39195104644,
+          "max": 4.39195104644,
+          "times": [
+            4.39195104644
+          ],
+          "memory_usage_byte": [
+            2317520896
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "692M",
+        "note": "Yarn Berry (yarn@4.13.0, node-modules mode) - node_modules_lockfile"
+      },
+      "pnpm": {
+        "time": {
+          "command": "bash -c 'pnpm install --frozen-lockfile'",
+          "mean": 2.80645417702,
+          "stddev": null,
+          "median": 2.80645417702,
+          "user": 3.7143048199999997,
+          "system": 0.56445626,
+          "min": 2.80645417702,
+          "max": 2.80645417702,
+          "times": [
+            2.80645417702
+          ],
+          "memory_usage_byte": [
+            461561856
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "679M",
+        "note": "pnpm (pnpm@10.33.0) - node_modules_lockfile"
+      },
+      "bun": {
+        "time": {
+          "command": "bash -c 'bun install --frozen-lockfile'",
+          "mean": 1.8386275641000003,
+          "stddev": null,
+          "median": 1.8386275641000003,
+          "user": 2.5587224199999996,
+          "system": 0.36869626,
+          "min": 1.8386275641000003,
+          "max": 1.8386275641000003,
+          "times": [
+            1.8386275641000003
+          ],
+          "memory_usage_byte": [
+            283758592
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "739M",
+        "note": "Bun (bun@1.3.11) - node_modules_lockfile"
+      },
+      "yarn-zpm": {
+        "time": {
+          "command": "bash -c 'yarn install --immutable'",
+          "mean": 3.0082062108399996,
+          "stddev": null,
+          "median": 3.0082062108399996,
+          "user": 1.7936061399999998,
+          "system": 1.20557776,
+          "min": 3.0082062108399996,
+          "max": 3.0082062108399996,
+          "times": [
+            3.0082062108399996
+          ],
+          "memory_usage_byte": [
+            956293120
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "754M",
+        "note": "Yarn ZPM (yarn@6.0.0-rc.15, node-modules mode) - node_modules_lockfile"
+      }
+    },
+    "node_modules_cache": {
+      "yarn-berry": {
+        "time": {
+          "command": "bash -c 'yarn install'",
+          "mean": 2.51148404762,
+          "stddev": null,
+          "median": 2.51148404762,
+          "user": 2.74625172,
+          "system": 0.33207832,
+          "min": 2.51148404762,
+          "max": 2.51148404762,
+          "times": [
+            2.51148404762
+          ],
+          "memory_usage_byte": [
+            712957952
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "8.0K",
+        "note": "Yarn Berry (yarn@4.13.0, node-modules mode) - node_modules_cache"
+      },
+      "pnpm": {
+        "time": {
+          "command": "bash -c 'pnpm install --offline'",
+          "mean": 3.34274781546,
+          "stddev": null,
+          "median": 3.34274781546,
+          "user": 5.86532262,
+          "system": 0.9749520599999999,
+          "min": 3.34274781546,
+          "max": 3.34274781546,
+          "times": [
+            3.34274781546
+          ],
+          "memory_usage_byte": [
+            785866752
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "679M",
+        "note": "pnpm (pnpm@10.33.0) - node_modules_cache"
+      },
+      "bun": {
+        "time": {
+          "command": "bash -c 'bun install'",
+          "mean": 1.8144810638800002,
+          "stddev": null,
+          "median": 1.8144810638800002,
+          "user": 2.5144721999999997,
+          "system": 0.37708129999999995,
+          "min": 1.8144810638800002,
+          "max": 1.8144810638800002,
+          "times": [
+            1.8144810638800002
+          ],
+          "memory_usage_byte": [
+            283254784
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "739M",
+        "note": "Bun (bun@1.3.11) - node_modules_cache"
+      },
+      "yarn-zpm": {
+        "time": {
+          "command": "bash -c 'yarn install --immutable-cache'",
+          "mean": 2.2052253788400002,
+          "stddev": null,
+          "median": 2.2052253788400002,
+          "user": 1.97667216,
+          "system": 0.64068296,
+          "min": 2.2052253788400002,
+          "max": 2.2052253788400002,
+          "times": [
+            2.2052253788400002
+          ],
+          "memory_usage_byte": [
+            1260085248
+          ],
+          "exit_codes": [
+            1
+          ]
+        },
+        "disk_usage": "N/A",
+        "note": "Yarn ZPM (yarn@6.0.0-rc.15, node-modules mode) - node_modules_cache"
+      }
+    },
+    "lockfile_cache": {
+      "yarn-berry": {
+        "time": {
+          "command": "bash -c 'yarn install --immutable'",
+          "mean": 0.9940705318200002,
+          "stddev": null,
+          "median": 0.9940705318200002,
+          "user": 1.28698944,
+          "system": 0.11801194,
+          "min": 0.9940705318200002,
+          "max": 0.9940705318200002,
+          "times": [
+            0.9940705318200002
+          ],
+          "memory_usage_byte": [
+            480927744
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "N/A",
+        "note": "Yarn Berry (yarn@4.13.0, node-modules mode) - lockfile_cache"
+      },
+      "pnpm": {
+        "time": {
+          "command": "bash -c 'pnpm install --offline --frozen-lockfile'",
+          "mean": 4.84618164784,
+          "stddev": null,
+          "median": 4.84618164784,
+          "user": 6.94968148,
+          "system": 3.8827182799999997,
+          "min": 4.84618164784,
+          "max": 4.84618164784,
+          "times": [
+            4.84618164784
+          ],
+          "memory_usage_byte": [
+            813973504
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "699M",
+        "note": "pnpm (pnpm@10.33.0) - lockfile_cache"
+      },
+      "bun": {
+        "time": {
+          "command": "bash -c 'bun install --frozen-lockfile'",
+          "mean": 2.8458494649999997,
+          "stddev": null,
+          "median": 2.8458494649999997,
+          "user": 2.82189548,
+          "system": 1.23171804,
+          "min": 2.8458494649999997,
+          "max": 2.8458494649999997,
+          "times": [
+            2.8458494649999997
+          ],
+          "memory_usage_byte": [
+            297545728
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "739M",
+        "note": "Bun (bun@1.3.11) - lockfile_cache"
+      },
+      "yarn-zpm": {
+        "time": {
+          "command": "bash -c 'yarn install --immutable --immutable-cache'",
+          "mean": 0.5781958980199999,
+          "stddev": null,
+          "median": 0.5781958980199999,
+          "user": 0.6317706799999999,
+          "system": 0.23886772,
+          "min": 0.5781958980199999,
+          "max": 0.5781958980199999,
+          "times": [
+            0.5781958980199999
+          ],
+          "memory_usage_byte": [
+            402833408
+          ],
+          "exit_codes": [
+            1
+          ]
+        },
+        "disk_usage": "N/A",
+        "note": "Yarn ZPM (yarn@6.0.0-rc.15, node-modules mode) - lockfile_cache"
+      }
+    },
+    "node_modules_lockfile_cache": {
+      "yarn-berry": {
+        "time": {
+          "command": "bash -c 'yarn install --immutable'",
+          "mean": 1.02972870744,
+          "stddev": null,
+          "median": 1.02972870744,
+          "user": 1.4326820599999999,
+          "system": 0.14278255999999998,
+          "min": 1.02972870744,
+          "max": 1.02972870744,
+          "times": [
+            1.02972870744
+          ],
+          "memory_usage_byte": [
+            213123072
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "692M",
+        "note": "Yarn Berry (yarn@4.13.0, node-modules mode) - node_modules_lockfile_cache"
+      },
+      "pnpm": {
+        "time": {
+          "command": "bash -c 'pnpm install --frozen-lockfile'",
+          "mean": 2.88496766588,
+          "stddev": null,
+          "median": 2.88496766588,
+          "user": 3.8939892999999994,
+          "system": 0.53502686,
+          "min": 2.88496766588,
+          "max": 2.88496766588,
+          "times": [
+            2.88496766588
+          ],
+          "memory_usage_byte": [
+            314789888
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "700M",
+        "note": "pnpm (pnpm@10.33.0) - node_modules_lockfile_cache"
+      },
+      "bun": {
+        "time": {
+          "command": "bash -c 'bun install --frozen-lockfile'",
+          "mean": 1.84993535116,
+          "stddev": null,
+          "median": 1.84993535116,
+          "user": 2.5812930199999995,
+          "system": 0.38719764,
+          "min": 1.84993535116,
+          "max": 1.84993535116,
+          "times": [
+            1.84993535116
+          ],
+          "memory_usage_byte": [
+            283017216
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "739M",
+        "note": "Bun (bun@1.3.11) - node_modules_lockfile_cache"
+      },
+      "yarn-zpm": {
+        "time": {
+          "command": "bash -c 'yarn install --immutable'",
+          "mean": 1.02047333146,
+          "stddev": null,
+          "median": 1.02047333146,
+          "user": 0.51087064,
+          "system": 0.66233596,
+          "min": 1.02047333146,
+          "max": 1.02047333146,
+          "times": [
+            1.02047333146
+          ],
+          "memory_usage_byte": [
+            426971136
+          ],
+          "exit_codes": [
+            0
+          ]
+        },
+        "disk_usage": "754M",
+        "note": "Yarn ZPM (yarn@6.0.0-rc.15, node-modules mode) - node_modules_lockfile_cache"
+      }
+    }
+  }
+}
