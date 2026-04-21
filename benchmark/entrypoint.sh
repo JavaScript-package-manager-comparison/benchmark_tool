@@ -37,7 +37,7 @@ ACTIVE_MANAGERS=(
   "pnpm"
   "bun"
   "yarn-zpm"
-#  "deno" # not work
+  "deno" # not work
 #  "vlt" # not work
   "cotton"
 )

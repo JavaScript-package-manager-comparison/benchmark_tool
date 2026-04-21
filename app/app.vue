@@ -50,7 +50,7 @@ useSeoMeta({
       <template #left>
         <div class="flex-none space-y-2">
           <AtomsParagraphSmall text="Aplikacja została wykonana na" />
-          <AtomsParagraphSmall :text="`Wydziale Informatyki Politechniki Białostockiej ${new Date().getFullYear()}`" class="text-primary-500" />
+          <AtomsParagraphSmall :text="`Wydziale Informatyki Politechniki Białostockiej ${new Date().getFullYear()}`" />
         </div>
       </template>
 
