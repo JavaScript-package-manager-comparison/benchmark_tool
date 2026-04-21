@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import {defineEventHandler} from 'h3'
+import { defineEventHandler } from 'h3'
 
 export default defineEventHandler(async () => {
   const resultsDir = path.resolve(process.cwd(), 'benchmark/results')

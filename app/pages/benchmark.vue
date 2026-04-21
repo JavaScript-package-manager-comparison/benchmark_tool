@@ -15,15 +15,15 @@ const scenarioLabels: Record<string, string> = {
 }
 
 const managerColors: Record<string, BadgeProps['color']> = {
-  'npm': 'error',
+  npm: 'error',
   'yarn-classic': 'info',
   'yarn-berry': 'info',
-  'pnpm': 'warning',
-  'bun': 'secondary',
+  pnpm: 'warning',
+  bun: 'secondary',
   'yarn-zpm': 'primary',
-  'deno': 'neutral',
-  'vlt': 'error',
-  'cotton': 'success',
+  deno: 'neutral',
+  vlt: 'error',
+  cotton: 'success',
 }
 
 const activeBenchmarkIndex = ref(0)
@@ -64,20 +64,23 @@ interface Row {
 }
 
 const rows = computed<Row[]>(() => {
-  const scenario = activeBenchmark.value?.data?.scenarios?.[activeScenario.value]
+  const scenario =
+    activeBenchmark.value?.data?.scenarios?.[activeScenario.value]
   if (!scenario) return []
 
   return Object.entries(scenario).map(([manager, result]) => ({
     manager,
     mean: result.time?.mean ?? 0,
-    memory_mb: Math.round((result.time?.memory_usage_byte?.[0] ?? 0) / 1024 / 1024),
+    memory_mb: Math.round(
+      (result.time?.memory_usage_byte?.[0] ?? 0) / 1024 / 1024,
+    ),
     disk_usage: result.disk_usage ?? 'N/A',
     exit_code: result.time?.exit_codes?.[0] ?? -1,
   }))
 })
 
 const fastestTime = computed(() =>
-    rows.value.length > 0 ? Math.min(...rows.value.map((r) => r.mean)) : 0,
+  rows.value.length > 0 ? Math.min(...rows.value.map((r) => r.mean)) : 0,
 )
 
 const columns: TableColumn<Row>[] = [
