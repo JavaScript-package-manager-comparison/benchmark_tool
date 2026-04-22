@@ -15,6 +15,17 @@ const toolColors: Record<string, string> = {
   cotton: '#3b82f6',
 }
 
+const scenarioLabels: Record<string, string> = {
+  clean: 'Clean install',
+  lockfile_only: 'Lockfile only',
+  cache_only: 'Cache only',
+  node_modules_only: 'node_modules only',
+  node_modules_lockfile: 'node_modules + Lockfile',
+  node_modules_cache: 'node_modules + Cache',
+  lockfile_cache: 'Lockfile + Cache',
+  node_modules_lockfile_cache: 'node_modules + Lockfile + Cache',
+}
+
 function parseDiskUsage(du: string | null): number | null {
   if (!du || du === 'N/A') return null
   const match = du.match(/([\d.]+)([KMG]?)/i)
@@ -23,20 +34,16 @@ function parseDiskUsage(du: string | null): number | null {
   const unit = (match[2] || 'M').toUpperCase()
   if (unit === 'K') num /= 1024
   if (unit === 'G') num *= 1024
-  return Math.round(num * 100) / 100 // MB
+  return Math.round(num * 100) / 100
 }
 
 const selectedFilename = ref<string>('')
+const selectedView = ref<string>('all')
 
 const benchmarkItems = computed(() => {
   return (
     store.benchmarks?.map((b) => ({
-      label: `${b.projectKey} — ${new Date(b.startTime).toLocaleDateString(
-        'pl-PL',
-      )} ${new Date(b.startTime).toLocaleTimeString('pl-PL', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })}`,
+      label: `${b.projectKey} — ${new Date(b.startTime).toLocaleDateString('pl-PL')} ${new Date(b.startTime).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}`,
       value: b.filename,
     })) || []
   )
@@ -63,69 +70,107 @@ const tools = computed(() => {
   return Array.from(allTools)
 })
 
-const timeDatasets = computed(() => {
-  return tools.value.map((tool) => ({
+const viewTabs = computed(() => [
+  { label: 'Wszystkie scenariusze', value: 'all' },
+  ...scenarios.value.map((scen) => ({
+    label: scenarioLabels[scen] ?? scen,
+    value: scen,
+  })),
+])
+
+const timeDatasets = computed(() =>
+  tools.value.map((tool) => ({
     label: tool,
     data: scenarios.value.map((scen) => {
-      if (
-        !(
-          currentBenchmark.value?.data.scenarios[scen]
-          && currentBenchmark.value?.data.scenarios[scen][tool]
-        )
-      )
-        return null
-      const t = currentBenchmark.value.data.scenarios[scen][tool].time?.mean
+      const entry = currentBenchmark.value?.data.scenarios[scen]?.[tool]
+      if (!entry) return null
+      const t = entry.time?.mean
       return typeof t === 'number' ? t : null
     }),
     backgroundColor: toolColors[tool] || '#64748b',
     borderColor: toolColors[tool] || '#64748b',
     borderWidth: 2,
-  }))
-})
+  })),
+)
 
-const diskDatasets = computed(() => {
-  return tools.value.map((tool) => ({
+const diskDatasets = computed(() =>
+  tools.value.map((tool) => ({
     label: tool,
     data: scenarios.value.map((scen) => {
-      if (
-        !(
-          currentBenchmark.value?.data.scenarios[scen]
-          && currentBenchmark.value?.data.scenarios[scen][tool]
-        )
-      )
-        return null
-      const du = currentBenchmark.value.data.scenarios[scen][tool].disk_usage
-      return parseDiskUsage(du)
+      const entry = currentBenchmark.value?.data.scenarios[scen]?.[tool]
+      if (!entry) return null
+      return parseDiskUsage(entry.disk_usage)
     }),
     backgroundColor: toolColors[tool] || '#64748b',
     borderColor: toolColors[tool] || '#64748b',
     borderWidth: 2,
-  }))
-})
+  })),
+)
 
-const memoryDatasets = computed(() => {
-  return tools.value.map((tool) => ({
+const memoryDatasets = computed(() =>
+  tools.value.map((tool) => ({
     label: tool,
     data: scenarios.value.map((scen) => {
-      if (
-        !(
-          currentBenchmark.value?.data.scenarios[scen]
-          && currentBenchmark.value?.data.scenarios[scen][tool]
-        )
-      )
-        return null
-      const memArray =
-        currentBenchmark.value?.data.scenarios[scen][tool].time
-          ?.memory_usage_byte
-      return memArray && memArray.length
-        ? Math.round(memArray[0] / 1024 / 1024)
-        : null
+      const entry = currentBenchmark.value?.data.scenarios[scen]?.[tool]
+      if (!entry) return null
+      const memArray = entry.time?.memory_usage_byte
+      return memArray?.length ? Math.round(memArray[0] / 1024 / 1024) : null
     }),
     backgroundColor: toolColors[tool] || '#64748b',
     borderColor: toolColors[tool] || '#64748b',
     borderWidth: 2,
-  }))
-})
+  })),
+)
+
+interface ChartDataset {
+  label: string
+  data: (number | null)[]
+  backgroundColor: string | string[]
+  borderColor: string | string[]
+  borderWidth: number
+}
+
+function getScenarioDatasets(
+  type: 'time' | 'disk' | 'memory',
+  scen: string,
+): ChartDataset[] {
+  const data = tools.value.map((tool) => {
+    const entry = currentBenchmark.value?.data.scenarios[scen]?.[tool]
+    if (!entry) return null
+    if (type === 'time') {
+      const t = entry.time?.mean
+      return typeof t === 'number' ? t : null
+    }
+    if (type === 'disk') return parseDiskUsage(entry.disk_usage)
+    const memArray = entry.time?.memory_usage_byte
+    return memArray?.length ? Math.round(memArray[0] / 1024 / 1024) : null
+  })
+
+  return [
+    {
+      label:
+        type === 'time'
+          ? 'Czas (s)'
+          : type === 'disk'
+            ? 'Dysk (MB)'
+            : 'Pamięć (MB)',
+      data,
+      backgroundColor: tools.value.map((tool) => toolColors[tool] || '#64748b'),
+      borderColor: tools.value.map((tool) => toolColors[tool] || '#64748b'),
+      borderWidth: 2,
+    },
+  ]
+}
+
+function getDiskMin(datasets: ChartDataset[]): number {
+  const allValues = datasets
+    .flatMap((d) => d.data)
+    .filter((v): v is number => typeof v === 'number')
+  if (!allValues.length) return 0
+  const min = Math.min(...allValues)
+  const max = Math.max(...allValues)
+  return Math.max(0, Math.floor(min - (max - min) * 0.5))
+}
 
 let timeChart: Chart | null = null
 let diskChart: Chart | null = null
@@ -135,31 +180,29 @@ const timeChartRef = ref<HTMLCanvasElement | null>(null)
 const diskChartRef = ref<HTMLCanvasElement | null>(null)
 const memoryChartRef = ref<HTMLCanvasElement | null>(null)
 
-interface ChartDataset {
-  label: string
-  data: (number | null)[]
-  backgroundColor: string
-  borderColor: string
-  borderWidth: number
-}
-
 function createChart(
   canvasRef: Ref<HTMLCanvasElement | null>,
   type: 'time' | 'disk' | 'memory',
 ) {
   if (!canvasRef.value) return null
-
   const ctx = canvasRef.value.getContext('2d')
   if (!ctx) return null
 
-  const labels = scenarios.value
+  const isAll = selectedView.value === 'all'
 
-  const datasetsMap: Record<'time' | 'disk' | 'memory', ChartDataset[]> = {
+  const labels = isAll ? scenarios.value : tools.value
+
+  const allDatasetsMap: Record<'time' | 'disk' | 'memory', ChartDataset[]> = {
     time: timeDatasets.value,
     disk: diskDatasets.value,
     memory: memoryDatasets.value,
   }
-  const datasets = datasetsMap[type]
+
+  const datasets = isAll
+    ? allDatasetsMap[type]
+    : getScenarioDatasets(type, selectedView.value)
+
+  const diskMin = type === 'disk' ? getDiskMin(datasets) : 0
 
   return new Chart(ctx, {
     type: 'bar',
@@ -168,31 +211,20 @@ function createChart(
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'top' as const },
+        legend: {
+          display: isAll,
+          position: 'top' as const,
+        },
         tooltip: { mode: 'index', intersect: false },
       },
       scales: {
-        x: {
-          stacked: false,
-          ticks: { autoSkip: false, maxRotation: 45 },
-        },
+        x: { stacked: false, ticks: { autoSkip: false, maxRotation: 45 } },
         y: {
           beginAtZero: type !== 'disk',
-          min:
-            type === 'disk'
-              ? (() => {
-                  const allValues = datasets
-                    .flatMap((ds: ChartDataset) => ds.data)
-                    .filter((v): v is number => typeof v === 'number')
-                  const maxValue = allValues.length
-                    ? Math.max(...allValues)
-                    : 1000
-                  return Math.floor(maxValue * 0.5) // dokładnie pół największej wartości – różnice widoczne
-                })()
-              : 0,
+          ...(type === 'disk' ? { min: diskMin } : {}),
           title: {
             display: true,
-            text: type === 'time' ? 'Czas (s)' : type === 'disk' ? 'MB' : 'MB',
+            text: type === 'time' ? 'Czas (s)' : 'MB',
           },
         },
       },
@@ -213,13 +245,10 @@ function updateAllCharts() {
 onMounted(() => {
   if (benchmarkItems.value.length)
     selectedFilename.value = benchmarkItems.value[0]?.value ?? ''
-
-  nextTick(() => {
-    updateAllCharts()
-  })
+  nextTick(() => updateAllCharts())
 })
 
-watch(selectedFilename, () => {
+watch([selectedFilename, selectedView], () => {
   nextTick(() => updateAllCharts())
 })
 
@@ -235,44 +264,42 @@ onBeforeUnmount(() => {
     <UCard class="mb-8">
       <template #header>
         <div class="flex items-center justify-between">
-          <h1 class="text-2xl font-bold">Benchmarki menedżerów
-            pakietów</h1>
+          <h1 class="text-2xl font-bold">Benchmarki menedżerów pakietów</h1>
           <UTabs
               v-if="benchmarkItems.length > 1"
               v-model="selectedFilename"
               :items="benchmarkItems"
           />
-          <span v-else class="text-sm text-gray-500">Projekt: {{
-              currentBenchmark?.projectKey
-            }} | Run: {{
-              currentBenchmark?.startTime ?
-                  new Date(currentBenchmark.startTime).toLocaleString('pl-PL', {
-                    dateStyle: 'short', timeStyle: 'short'
-                  }) : ''
-            }}</span>
+          <span v-else class="text-sm text-gray-500">
+            Projekt: {{ currentBenchmark?.projectKey }} | Run:
+            {{ currentBenchmark?.startTime ? new Date(currentBenchmark.startTime).toLocaleString('pl-PL', { dateStyle: 'short', timeStyle: 'short' }) : '' }}
+          </span>
         </div>
       </template>
 
+      <UTabs
+          v-model="selectedView"
+          :items="viewTabs"
+          color="neutral"
+          variant="link"
+          :content="false"
+          class="mb-6 w-full"
+      />
+
       <div class="flex flex-col gap-8">
         <UCard>
-          <template #header>Prędkość instalacji
-            (s)
-          </template>
-          <canvas ref="timeChartRef" class="w-full"/>
+          <template #header>Prędkość instalacji (s)</template>
+          <canvas ref="timeChartRef" class="w-full" />
         </UCard>
 
         <UCard>
-          <template #header>Zajmowane miejsce na dysku
-            (MB)
-          </template>
-          <canvas ref="diskChartRef" class="w-full"/>
+          <template #header>Zajmowane miejsce na dysku (MB)</template>
+          <canvas ref="diskChartRef" class="w-full" />
         </UCard>
 
         <UCard>
-          <template #header>Zużycie pamięci RAM podczas instalacji
-            (MB)
-          </template>
-          <canvas ref="memoryChartRef" class="w-full"/>
+          <template #header>Zużycie pamięci RAM podczas instalacji (MB)</template>
+          <canvas ref="memoryChartRef" class="w-full" />
         </UCard>
       </div>
     </UCard>
