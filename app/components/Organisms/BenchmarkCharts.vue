@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import Chart from 'chart.js/auto'
+import {
+  BoxAndWiskers,
+  BoxPlotController,
+} from '@sgratzl/chartjs-chart-boxplot'
+import { Chart } from 'chart.js/auto'
+
+Chart.register(BoxPlotController, BoxAndWiskers)
 
 const store = useBenchmarkStore()
 
@@ -39,6 +45,9 @@ function parseDiskUsage(du: string | null): number | null {
 
 const selectedFilename = ref<string>('')
 const selectedView = ref<string>('all')
+const useBoxPlotTime = ref<boolean>(true)
+const useBoxPlotDisk = ref<boolean>(false)
+const useBoxPlotMemory = ref<boolean>(false)
 
 const benchmarkItems = computed(() => {
   return (
@@ -78,51 +87,17 @@ const viewTabs = computed(() => [
   })),
 ])
 
-const timeDatasets = computed(() =>
-  tools.value.map((tool) => ({
-    label: tool,
-    data: scenarios.value.map((scen) => {
-      const entry = currentBenchmark.value?.data.scenarios[scen]?.[tool]
-      if (!entry) return null
-      const t = entry.time?.mean
-      return typeof t === 'number' ? t : null
-    }),
-    backgroundColor: toolColors[tool] || '#64748b',
-    borderColor: toolColors[tool] || '#64748b',
-    borderWidth: 2,
-  })),
-)
+interface BoxDataset {
+  label: string
+  data: (number[] | null)[]
+  backgroundColor: string | string[]
+  borderColor: string | string[]
+  borderWidth: number
+  itemRadius: number
+  meanStyle: string
+}
 
-const diskDatasets = computed(() =>
-  tools.value.map((tool) => ({
-    label: tool,
-    data: scenarios.value.map((scen) => {
-      const entry = currentBenchmark.value?.data.scenarios[scen]?.[tool]
-      if (!entry) return null
-      return parseDiskUsage(entry.disk_usage)
-    }),
-    backgroundColor: toolColors[tool] || '#64748b',
-    borderColor: toolColors[tool] || '#64748b',
-    borderWidth: 2,
-  })),
-)
-
-const memoryDatasets = computed(() =>
-  tools.value.map((tool) => ({
-    label: tool,
-    data: scenarios.value.map((scen) => {
-      const entry = currentBenchmark.value?.data.scenarios[scen]?.[tool]
-      if (!entry) return null
-      const memArray = entry.time?.memory_usage_byte
-      return memArray?.length ? Math.round(memArray[0] / 1024 / 1024) : null
-    }),
-    backgroundColor: toolColors[tool] || '#64748b',
-    borderColor: toolColors[tool] || '#64748b',
-    borderWidth: 2,
-  })),
-)
-
-interface ChartDataset {
+interface BarDataset {
   label: string
   data: (number | null)[]
   backgroundColor: string | string[]
@@ -130,31 +105,90 @@ interface ChartDataset {
   borderWidth: number
 }
 
-function getScenarioDatasets(
-  type: 'time' | 'disk' | 'memory',
-  scen: string,
-): ChartDataset[] {
-  const data = tools.value.map((tool) => {
-    const entry = currentBenchmark.value?.data.scenarios[scen]?.[tool]
-    if (!entry) return null
-    if (type === 'time') {
-      const t = entry.time?.mean
-      return typeof t === 'number' ? t : null
-    }
-    if (type === 'disk') return parseDiskUsage(entry.disk_usage)
-    const memArray = entry.time?.memory_usage_byte
-    return memArray?.length ? Math.round(memArray[0] / 1024 / 1024) : null
-  })
+function getTimesArray(entry: any): number[] | null {
+  const times = entry?.time?.times
+  return Array.isArray(times) && times.length ? (times as number[]) : null
+}
 
+function getMemoryArray(entry: any): number[] | null {
+  const arr = entry?.time?.memory_usage_byte
+  if (!(Array.isArray(arr) && arr.length)) return null
+  return arr.map((b: number) => Math.round(b / 1024 / 1024))
+}
+
+function getDiskArray(entry: any): number[] | null {
+  const val = parseDiskUsage(entry?.disk_usage)
+  return val === null ? null : [val]
+}
+
+function makeBoxDatasets(
+  getValue: (entry: any) => number[] | null,
+  alphaColor = true,
+): BoxDataset[] {
+  return tools.value.map((tool) => ({
+    label: tool,
+    data: scenarios.value.map((scen) => {
+      const entry = currentBenchmark.value?.data.scenarios[scen]?.[tool]
+      return entry ? getValue(entry) : null
+    }),
+    backgroundColor: (toolColors[tool] || '#64748b') + (alphaColor ? '55' : ''),
+    borderColor: toolColors[tool] || '#64748b',
+    borderWidth: 2,
+    itemRadius: 3,
+    meanStyle: 'triangle',
+  }))
+}
+
+function makeBoxScenarioDatasets(
+  scen: string,
+  label: string,
+  getValue: (entry: any) => number[] | null,
+): BoxDataset[] {
   return [
     {
-      label:
-        type === 'time'
-          ? 'Czas (s)'
-          : type === 'disk'
-            ? 'Dysk (MB)'
-            : 'Pamięć (MB)',
-      data,
+      label,
+      data: tools.value.map((tool) => {
+        const entry = currentBenchmark.value?.data.scenarios[scen]?.[tool]
+        return entry ? getValue(entry) : null
+      }),
+      backgroundColor: tools.value.map(
+        (tool) => (toolColors[tool] || '#64748b') + '55',
+      ),
+      borderColor: tools.value.map((tool) => toolColors[tool] || '#64748b'),
+      borderWidth: 2,
+      itemRadius: 3,
+      meanStyle: 'triangle',
+    },
+  ]
+}
+
+function makeBarDatasets(
+  getValue: (entry: any) => number | null,
+): BarDataset[] {
+  return tools.value.map((tool) => ({
+    label: tool,
+    data: scenarios.value.map((scen) => {
+      const entry = currentBenchmark.value?.data.scenarios[scen]?.[tool]
+      return entry ? getValue(entry) : null
+    }),
+    backgroundColor: toolColors[tool] || '#64748b',
+    borderColor: toolColors[tool] || '#64748b',
+    borderWidth: 2,
+  }))
+}
+
+function makeBarScenarioDatasets(
+  scen: string,
+  label: string,
+  getValue: (entry: any) => number | null,
+): BarDataset[] {
+  return [
+    {
+      label,
+      data: tools.value.map((tool) => {
+        const entry = currentBenchmark.value?.data.scenarios[scen]?.[tool]
+        return entry ? getValue(entry) : null
+      }),
       backgroundColor: tools.value.map((tool) => toolColors[tool] || '#64748b'),
       borderColor: tools.value.map((tool) => toolColors[tool] || '#64748b'),
       borderWidth: 2,
@@ -162,7 +196,7 @@ function getScenarioDatasets(
   ]
 }
 
-function getDiskMin(datasets: ChartDataset[]): number {
+function getDiskMin(datasets: BarDataset[]): number {
   const allValues = datasets
     .flatMap((d) => d.data)
     .filter((v): v is number => typeof v === 'number')
@@ -172,6 +206,27 @@ function getDiskMin(datasets: ChartDataset[]): number {
   return Math.max(0, Math.floor(min - (max - min) * 0.5))
 }
 
+const timeBoxDatasets = computed(() => makeBoxDatasets(getTimesArray))
+const timeBarDatasets = computed(() =>
+  makeBarDatasets((e) => {
+    const t = e?.time?.mean
+    return typeof t === 'number' ? t : null
+  }),
+)
+
+const diskBoxDatasets = computed(() => makeBoxDatasets(getDiskArray))
+const diskBarDatasets = computed(() =>
+  makeBarDatasets((e) => parseDiskUsage(e?.disk_usage)),
+)
+
+const memoryBoxDatasets = computed(() => makeBoxDatasets(getMemoryArray))
+const memoryBarDatasets = computed(() =>
+  makeBarDatasets((e) => {
+    const arr = e?.time?.memory_usage_byte
+    return arr?.length ? Math.round(arr[0] / 1024 / 1024) : null
+  }),
+)
+
 let timeChart: Chart | null = null
 let diskChart: Chart | null = null
 let memoryChart: Chart | null = null
@@ -180,29 +235,82 @@ const timeChartRef = ref<HTMLCanvasElement | null>(null)
 const diskChartRef = ref<HTMLCanvasElement | null>(null)
 const memoryChartRef = ref<HTMLCanvasElement | null>(null)
 
+type ChartMetric = 'time' | 'disk' | 'memory'
+
 function createChart(
   canvasRef: Ref<HTMLCanvasElement | null>,
-  type: 'time' | 'disk' | 'memory',
+  metric: ChartMetric,
 ) {
   if (!canvasRef.value) return null
   const ctx = canvasRef.value.getContext('2d')
   if (!ctx) return null
 
   const isAll = selectedView.value === 'all'
-
   const labels = isAll ? scenarios.value : tools.value
+  const scen = selectedView.value
 
-  const allDatasetsMap: Record<'time' | 'disk' | 'memory', ChartDataset[]> = {
-    time: timeDatasets.value,
-    disk: diskDatasets.value,
-    memory: memoryDatasets.value,
+  const useBox =
+    metric === 'time'
+      ? useBoxPlotTime.value
+      : metric === 'disk'
+        ? useBoxPlotDisk.value
+        : useBoxPlotMemory.value
+
+  const yLabel = metric === 'time' ? 'Czas (s)' : 'MB'
+
+  if (useBox) {
+    const datasetsMap: Record<ChartMetric, BoxDataset[]> = {
+      time: timeBoxDatasets.value,
+      disk: diskBoxDatasets.value,
+      memory: memoryBoxDatasets.value,
+    }
+    const scenarioFnMap: Record<ChartMetric, (s: string) => BoxDataset[]> = {
+      time: (s) => makeBoxScenarioDatasets(s, 'Czas (s)', getTimesArray),
+      disk: (s) => makeBoxScenarioDatasets(s, 'Dysk (MB)', getDiskArray),
+      memory: (s) => makeBoxScenarioDatasets(s, 'Pamięć (MB)', getMemoryArray),
+    }
+    const datasets = isAll ? datasetsMap[metric] : scenarioFnMap[metric](scen)
+
+    return new Chart(ctx as any, {
+      type: 'boxplot' as any,
+      data: { labels, datasets } as any,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: isAll, position: 'top' },
+          tooltip: { mode: 'index', intersect: false },
+        },
+        scales: {
+          x: { ticks: { autoSkip: false, maxRotation: 45 } },
+          y: { beginAtZero: true, title: { display: true, text: yLabel } },
+        },
+      } as any,
+    }) as Chart
   }
-
-  const datasets = isAll
-    ? allDatasetsMap[type]
-    : getScenarioDatasets(type, selectedView.value)
-
-  const diskMin = type === 'disk' ? getDiskMin(datasets) : 0
+  const datasetsMap: Record<ChartMetric, BarDataset[]> = {
+    time: timeBarDatasets.value,
+    disk: diskBarDatasets.value,
+    memory: memoryBarDatasets.value,
+  }
+  const scenarioFnMap: Record<ChartMetric, (s: string) => BarDataset[]> = {
+    time: (s) =>
+      makeBarScenarioDatasets(s, 'Czas (s)', (e) => {
+        const t = e?.time?.mean
+        return typeof t === 'number' ? t : null
+      }),
+    disk: (s) =>
+      makeBarScenarioDatasets(s, 'Dysk (MB)', (e) =>
+        parseDiskUsage(e?.disk_usage),
+      ),
+    memory: (s) =>
+      makeBarScenarioDatasets(s, 'Pamięć (MB)', (e) => {
+        const arr = e?.time?.memory_usage_byte
+        return arr?.length ? Math.round(arr[0] / 1024 / 1024) : null
+      }),
+  }
+  const datasets = isAll ? datasetsMap[metric] : scenarioFnMap[metric](scen)
+  const diskMin = metric === 'disk' ? getDiskMin(datasets) : 0
 
   return new Chart(ctx, {
     type: 'bar',
@@ -211,21 +319,15 @@ function createChart(
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          display: isAll,
-          position: 'top' as const,
-        },
+        legend: { display: isAll, position: 'top' as const },
         tooltip: { mode: 'index', intersect: false },
       },
       scales: {
         x: { stacked: false, ticks: { autoSkip: false, maxRotation: 45 } },
         y: {
-          beginAtZero: type !== 'disk',
-          ...(type === 'disk' ? { min: diskMin } : {}),
-          title: {
-            display: true,
-            text: type === 'time' ? 'Czas (s)' : 'MB',
-          },
+          beginAtZero: metric !== 'disk',
+          ...(metric === 'disk' ? { min: diskMin } : {}),
+          title: { display: true, text: yLabel },
         },
       },
     },
@@ -248,9 +350,18 @@ onMounted(() => {
   nextTick(() => updateAllCharts())
 })
 
-watch([selectedFilename, selectedView], () => {
-  nextTick(() => updateAllCharts())
-})
+watch(
+  [
+    selectedFilename,
+    selectedView,
+    useBoxPlotTime,
+    useBoxPlotDisk,
+    useBoxPlotMemory,
+  ],
+  () => {
+    nextTick(() => updateAllCharts())
+  },
+)
 
 onBeforeUnmount(() => {
   if (timeChart) timeChart.destroy()
@@ -287,18 +398,63 @@ onBeforeUnmount(() => {
       />
 
       <div class="flex flex-col gap-8">
+        <!-- Czas -->
         <UCard>
-          <template #header>Prędkość instalacji (s)</template>
+          <template #header>
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex items-center gap-2">
+                <span>Prędkość instalacji (s)</span>
+                <span v-if="useBoxPlotTime" class="text-xs text-muted font-normal">
+                  — pudełko = Q1–Q3, linia = mediana, trójkąt = średnia, wąsy = min/max
+                </span>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-sm text-muted">Słupkowy</span>
+                <USwitch v-model="useBoxPlotTime" />
+                <span class="text-sm text-muted">Pudełkowy</span>
+              </div>
+            </div>
+          </template>
           <canvas ref="timeChartRef" class="w-full" />
         </UCard>
 
+        <!-- Dysk -->
         <UCard>
-          <template #header>Zajmowane miejsce na dysku (MB)</template>
+          <template #header>
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex items-center gap-2">
+                <span>Zajmowane miejsce na dysku (MB)</span>
+                <span v-if="useBoxPlotDisk" class="text-xs text-muted font-normal">
+                  — pojedyncza wartość per run, pudełko zdegenerowane do linii
+                </span>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-sm text-muted">Słupkowy</span>
+                <USwitch v-model="useBoxPlotDisk" />
+                <span class="text-sm text-muted">Pudełkowy</span>
+              </div>
+            </div>
+          </template>
           <canvas ref="diskChartRef" class="w-full" />
         </UCard>
 
+        <!-- Pamięć -->
         <UCard>
-          <template #header>Zużycie pamięci RAM podczas instalacji (MB)</template>
+          <template #header>
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex items-center gap-2">
+                <span>Zużycie pamięci RAM podczas instalacji (MB)</span>
+                <span v-if="useBoxPlotMemory" class="text-xs text-muted font-normal">
+                  — pudełko = Q1–Q3, linia = mediana, trójkąt = średnia, wąsy = min/max
+                </span>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-sm text-muted">Słupkowy</span>
+                <USwitch v-model="useBoxPlotMemory" />
+                <span class="text-sm text-muted">Pudełkowy</span>
+              </div>
+            </div>
+          </template>
           <canvas ref="memoryChartRef" class="w-full" />
         </UCard>
       </div>
