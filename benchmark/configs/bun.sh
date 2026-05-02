@@ -1,9 +1,9 @@
 declare -A bun_config
-bun_config[version]="bun@1.3.11"
+bun_config[version]="bun@1.3.13"
 bun_config[full_install]="bun install"
 bun_config[ci_install]="bun install --frozen-lockfile"
-bun_config[offline_install]="bun install"
-bun_config[offline_ci_install]="bun install --frozen-lockfile"
+bun_config[offline_install]="bun install --prefer-offline"
+bun_config[offline_ci_install]="bun install --prefer-offline --frozen-lockfile"
 bun_config[clean_cache_cmd]="bun pm cache rm"
 bun_config[disk_dir]="node_modules"
 bun_config[lockfile]="bun.lockb"

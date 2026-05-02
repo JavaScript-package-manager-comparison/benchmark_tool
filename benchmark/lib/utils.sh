@@ -1,6 +1,4 @@
-ALL_LOCKFILES="package-lock.json yarn.lock pnpm-lock.yaml bun.lockb deno.lock vlt-lock.json cotton.lock"
-ALL_PM_ARTIFACTS=".yarn/cache .pnp.* .pnp.cjs .pnp.loader.mjs"
-ALL_PM_CONFIGS=".yarnrc.yml vlt.json deno.json cotton.toml"
+ALL_LOCKFILES="package-lock.json yarn.lock pnpm-lock.yaml bun.lockb bun.lock deno.lock vlt-lock.json cotton.lock"
 
 prepare_package_json() {
   local manager="$1"
@@ -26,59 +24,40 @@ get_scenario_commands() {
   local scenario="$1"
   local manager="$2"
 
+  local delete_nm="rm -rf node_modules .pnp.*"
+  local delete_lock="rm -rf $ALL_LOCKFILES"
+  local delete_cache="rm -rf .yarn/cache && ${config[clean_cache_cmd]}"
+
   case "$scenario" in
-    # 1. Clean install
     clean)
-      INITIAL_CMD="true" # skip initial install
       INSTALL_CMD="${config[full_install]}"
-      PREPARE_CMD="rm -rf node_modules $ALL_LOCKFILES $ALL_PM_ARTIFACTS $ALL_PM_CONFIGS && ${config[clean_cache_cmd]}"
+      PREPARE_CMD="$delete_nm && $delete_lock && $delete_cache"
       ;;
-
-    # 2. Cache only
     cache_only)
-      INITIAL_CMD="${config[full_install]}"
       INSTALL_CMD="${config[offline_install]}"
-      PREPARE_CMD="rm -rf node_modules $ALL_LOCKFILES $ALL_PM_ARTIFACTS $ALL_PM_CONFIGS"
+      PREPARE_CMD="$delete_nm && $delete_lock"
       ;;
-
-    # 3. Lockfile only
     lockfile_only)
-      INITIAL_CMD="${config[full_install]}"
       INSTALL_CMD="${config[ci_install]}"
-      PREPARE_CMD="rm -rf node_modules $ALL_PM_ARTIFACTS $ALL_PM_CONFIGS && ${config[clean_cache_cmd]}"
+      PREPARE_CMD="$delete_nm && $delete_cache"
       ;;
-
-    # 4. node_modules only
     node_modules_only)
-      INITIAL_CMD="${config[full_install]}"
       INSTALL_CMD="${config[full_install]}"
-      PREPARE_CMD="rm -rf $ALL_LOCKFILES $ALL_PM_ARTIFACTS $ALL_PM_CONFIGS && ${config[clean_cache_cmd]}"
+      PREPARE_CMD="$delete_lock && $delete_cache"
       ;;
-
-    # 5. Lockfile + cache
     lockfile_cache)
-      INITIAL_CMD="${config[full_install]}"
       INSTALL_CMD="${config[offline_ci_install]}"
-      PREPARE_CMD="rm -rf node_modules $ALL_PM_ARTIFACTS $ALL_PM_CONFIGS"
+      PREPARE_CMD="$delete_nm"
       ;;
-
-    # 6. Cache + node_modules
     node_modules_cache)
-      INITIAL_CMD="${config[full_install]}"
       INSTALL_CMD="${config[offline_install]}"
-      PREPARE_CMD="rm -rf $ALL_LOCKFILES $ALL_PM_ARTIFACTS $ALL_PM_CONFIGS"
+      PREPARE_CMD="$delete_lock"
       ;;
-
-    # 7. Lockfile + node_modules
     node_modules_lockfile)
-      INITIAL_CMD="${config[full_install]}"
       INSTALL_CMD="${config[ci_install]}"
-      PREPARE_CMD="${config[clean_cache_cmd]}"
+      PREPARE_CMD="$delete_cache"
       ;;
-
-    # 8. Cache + node_modules + lockfile
     node_modules_lockfile_cache)
-      INITIAL_CMD="${config[full_install]}"
       INSTALL_CMD="${config[ci_install]}"
       PREPARE_CMD="true"
       ;;

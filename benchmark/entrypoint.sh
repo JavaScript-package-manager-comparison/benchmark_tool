@@ -13,8 +13,12 @@ export NPM_CONFIG_YES=true
 export CI=true
 export FORCE_COLOR=0
 export NODE_OPTIONS="--max-old-space-size=4096"
-export YARN_ENABLE_IMMUTABLE_INSTALLS=false
 export YARNSW_COREPACK_COMPAT=true
+
+export YARN_ENABLE_SCRIPTS=0
+export PNPM_IGNORE_SCRIPTS=true
+export BUN_INSTALL_IGNORE_SCRIPTS=true
+export NPM_CONFIG_IGNORE_SCRIPTS=true
 
 source lib/utils.sh
 source lib/scenario_handler.sh
@@ -31,25 +35,25 @@ cp package.json package.json.original || true
 corepack enable >/dev/null 2>&1 || true
 
 ACTIVE_MANAGERS=(
-  "npm"
-  "yarn-classic"
+#  "npm"
+#  "yarn-classic"
   "yarn-berry"
-  "pnpm"
-  "bun"
+#  "pnpm"
+#  "bun"
   "yarn-zpm"
-  "deno" # not work
-#  "vlt" # not work
-  "cotton"
+#  "deno"
+#  "vlt"
+#  "cotton"
 )
 
 ACTIVE_SCENARIOS=(
   "clean"
-  "lockfile_only"
   "cache_only"
+  "lockfile_only"
   "node_modules_only"
-  "node_modules_lockfile"
-  "node_modules_cache"
   "lockfile_cache"
+  "node_modules_cache"
+  "node_modules_lockfile"
   "node_modules_lockfile_cache"
 )
 
@@ -83,5 +87,4 @@ done
 
 echo "=================================================================="
 echo "All benchmarks completed! Results in: $RESULTS_JSON"
-echo "All benchmarks : $RESULTS_JSON"
 echo "=================================================================="

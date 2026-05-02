@@ -8,7 +8,7 @@ run_benchmark() {
   echo "=================================================================="
   echo ""
 
-  rm -rf node_modules $ALL_LOCKFILES $ALL_PM_ARTIFACTS $ALL_PM_CONFIGS .npm 2>/dev/null || true
+  rm -rf node_modules $ALL_LOCKFILES .pnp.* .yarn/cache .npm 2>/dev/null || true
   cp package.json.original package.json
 
   declare -n config="${manager//-/_}_config"
@@ -25,9 +25,8 @@ run_benchmark() {
 
   case "$manager" in
     yarn-berry|yarn-zpm)
-      yarn config set nodeLinker node-modules
-      YARN_ENABLE_IMMUTABLE_INSTALLS=false
-      export YARN_ENABLE_IMMUTABLE_INSTALLS
+      yarn config set nodeLinker node-modules 2>/dev/null || true
+      export YARN_ENABLE_IMMUTABLE_INSTALLS=false
       ;;
     deno)
       echo '{"nodeModulesDir": "auto"}' > deno.json
@@ -40,23 +39,17 @@ run_benchmark() {
   get_scenario_commands "$scenario" "$manager"
 
   if [ "$scenario" != "clean" ]; then
-    echo "→ Initial full install..."
-    if [ "$manager" = "deno" ] || [ "$manager" = "vlt" ]; then
-      for attempt in {1..3}; do
-        bash -c "${config[full_install]}" && break
-        echo "  Próba $attempt nie powiodła się (network/cache), ponawiam za 5s..."
-        sleep 5
-        eval "${config[clean_cache_cmd]}" 2>/dev/null || true
-      done || {
-        echo "BŁĄD: Initial install nie powiódł się dla $manager — pomijam"
-        return 1
-      }
-    else
-      bash -c "${config[full_install]}" || {
-        echo "BŁĄD: Initial install nie powiódł się dla $manager — pomijam"
-        return 1
-      }
-    fi
+    echo "→ Initial full install (setup)..."
+    local attempt
+    for attempt in {1..3}; do
+      bash -c "${config[full_install]}" && break
+      echo "  Próba $attempt nie powiodła się, ponawiam za 5s..."
+      sleep 5
+      eval "${config[clean_cache_cmd]}" 2>/dev/null || true
+    done || {
+      echo "BŁĄD: Initial install nie powiódł się dla $manager — pomijam"
+      return 1
+    }
   fi
 
   echo "→ Uruchamianie hyperfine (runs=$RUNS, warmup=$WARMUP)..."
