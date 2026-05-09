@@ -35,15 +35,15 @@ cp package.json package.json.original || true
 corepack enable >/dev/null 2>&1 || true
 
 ACTIVE_MANAGERS=(
-#  "npm"
-#  "yarn-classic"
+  "npm"
+  "yarn-classic"
   "yarn-berry"
-#  "pnpm"
-#  "bun"
+  "pnpm"
+  "bun"
   "yarn-zpm"
-#  "deno"
-#  "vlt"
-#  "cotton"
+  "deno"
+  "vlt"
+  "cotton"
 )
 
 ACTIVE_SCENARIOS=(
