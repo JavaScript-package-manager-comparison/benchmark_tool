@@ -19,6 +19,7 @@ export YARN_ENABLE_SCRIPTS=0
 export PNPM_IGNORE_SCRIPTS=true
 export BUN_INSTALL_IGNORE_SCRIPTS=true
 export NPM_CONFIG_IGNORE_SCRIPTS=true
+export AUBE_IGNORE_SCRIPTS=true
 
 source lib/utils.sh
 source lib/scenario_handler.sh
@@ -44,6 +45,7 @@ ACTIVE_MANAGERS=(
   "deno"
   "vlt"
   "cotton"
+  "aube"
 )
 
 ACTIVE_SCENARIOS=(

@@ -58,6 +58,7 @@ const activeScenario = computed({
 interface Row {
   manager: string
   mean: number
+  cpu_percent: number | string
   memory_mb: number
   disk_usage: string
   exit_code: number
@@ -71,6 +72,10 @@ const rows = computed<Row[]>(() => {
   return Object.entries(scenario).map(([manager, result]) => ({
     manager,
     mean: result.time?.mean ?? 0,
+    cpu_percent:
+      typeof result.cpu_usage_percent === 'number'
+        ? result.cpu_usage_percent
+        : 'N/A',
     memory_mb: Math.round(
       (result.time?.memory_usage_byte?.[0] ?? 0) / 1024 / 1024,
     ),
@@ -86,6 +91,7 @@ const fastestTime = computed(() =>
 const columns: TableColumn<Row>[] = [
   { accessorKey: 'manager', header: 'Package manager' },
   { accessorKey: 'mean', header: 'Czas (s)' },
+  { accessorKey: 'cpu_percent', header: 'CPU (%)' },
   { accessorKey: 'memory_mb', header: 'Pamięć (MB)' },
   { accessorKey: 'disk_usage', header: 'Dysk' },
   { accessorKey: 'exit_code', header: 'Status' },
@@ -166,6 +172,14 @@ const columns: TableColumn<Row>[] = [
                 variant="subtle"
                 size="xs"
             />
+          </div>
+        </template>
+
+        <template #cpu_percent-cell="{ row }">
+          <div class="flex items-center gap-2">
+            <span :class="typeof row.original.cpu_percent === 'number' && row.original.cpu_percent > 100 ? 'font-semibold text-primary' : ''">
+              {{ typeof row.original.cpu_percent === 'number' ? row.original.cpu_percent.toFixed(2) + '%' : row.original.cpu_percent }}
+            </span>
           </div>
         </template>
 

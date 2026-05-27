@@ -48,6 +48,7 @@ const selectedView = ref<string>('all')
 const useBoxPlotTime = ref<boolean>(true)
 const useBoxPlotDisk = ref<boolean>(false)
 const useBoxPlotMemory = ref<boolean>(false)
+const useBoxPlotCpu = ref<boolean>(false)
 
 const benchmarkItems = computed(() => {
   return (
@@ -119,6 +120,11 @@ function getMemoryArray(entry: any): number[] | null {
 function getDiskArray(entry: any): number[] | null {
   const val = parseDiskUsage(entry?.disk_usage)
   return val === null ? null : [val]
+}
+
+function getCpuArray(entry: any): number[] | null {
+  const val = entry?.cpu_usage_percent
+  return typeof val === 'number' ? [val] : null
 }
 
 function makeBoxDatasets(
@@ -227,15 +233,24 @@ const memoryBarDatasets = computed(() =>
   }),
 )
 
+const cpuBoxDatasets = computed(() => makeBoxDatasets(getCpuArray))
+const cpuBarDatasets = computed(() =>
+  makeBarDatasets((e) => {
+    return typeof e?.cpu_usage_percent === 'number' ? e.cpu_usage_percent : null
+  }),
+)
+
 let timeChart: Chart | null = null
 let diskChart: Chart | null = null
 let memoryChart: Chart | null = null
+let cpuChart: Chart | null = null
 
 const timeChartRef = ref<HTMLCanvasElement | null>(null)
 const diskChartRef = ref<HTMLCanvasElement | null>(null)
 const memoryChartRef = ref<HTMLCanvasElement | null>(null)
+const cpuChartRef = ref<HTMLCanvasElement | null>(null)
 
-type ChartMetric = 'time' | 'disk' | 'memory'
+type ChartMetric = 'time' | 'disk' | 'memory' | 'cpu'
 
 function createChart(
   canvasRef: Ref<HTMLCanvasElement | null>,
@@ -254,20 +269,25 @@ function createChart(
       ? useBoxPlotTime.value
       : metric === 'disk'
         ? useBoxPlotDisk.value
-        : useBoxPlotMemory.value
+        : metric === 'cpu'
+          ? useBoxPlotCpu.value
+          : useBoxPlotMemory.value
 
-  const yLabel = metric === 'time' ? 'Czas (s)' : 'MB'
+  const yLabel =
+    metric === 'time' ? 'Czas (s)' : metric === 'cpu' ? 'CPU (%)' : 'MB'
 
   if (useBox) {
     const datasetsMap: Record<ChartMetric, BoxDataset[]> = {
       time: timeBoxDatasets.value,
       disk: diskBoxDatasets.value,
       memory: memoryBoxDatasets.value,
+      cpu: cpuBoxDatasets.value,
     }
     const scenarioFnMap: Record<ChartMetric, (s: string) => BoxDataset[]> = {
       time: (s) => makeBoxScenarioDatasets(s, 'Czas (s)', getTimesArray),
       disk: (s) => makeBoxScenarioDatasets(s, 'Dysk (MB)', getDiskArray),
       memory: (s) => makeBoxScenarioDatasets(s, 'Pamięć (MB)', getMemoryArray),
+      cpu: (s) => makeBoxScenarioDatasets(s, 'CPU (%)', getCpuArray),
     }
     const datasets = isAll ? datasetsMap[metric] : scenarioFnMap[metric](scen)
 
@@ -288,10 +308,12 @@ function createChart(
       } as any,
     }) as Chart
   }
+
   const datasetsMap: Record<ChartMetric, BarDataset[]> = {
     time: timeBarDatasets.value,
     disk: diskBarDatasets.value,
     memory: memoryBarDatasets.value,
+    cpu: cpuBarDatasets.value,
   }
   const scenarioFnMap: Record<ChartMetric, (s: string) => BarDataset[]> = {
     time: (s) =>
@@ -308,7 +330,14 @@ function createChart(
         const arr = e?.time?.memory_usage_byte
         return arr?.length ? Math.round(arr[0] / 1024 / 1024) : null
       }),
+    cpu: (s) =>
+      makeBarScenarioDatasets(s, 'CPU (%)', (e) => {
+        return typeof e?.cpu_usage_percent === 'number'
+          ? e.cpu_usage_percent
+          : null
+      }),
   }
+
   const datasets = isAll ? datasetsMap[metric] : scenarioFnMap[metric](scen)
   const diskMin = metric === 'disk' ? getDiskMin(datasets) : 0
 
@@ -338,10 +367,12 @@ function updateAllCharts() {
   if (timeChart) timeChart.destroy()
   if (diskChart) diskChart.destroy()
   if (memoryChart) memoryChart.destroy()
+  if (cpuChart) cpuChart.destroy()
 
   timeChart = createChart(timeChartRef, 'time')
   diskChart = createChart(diskChartRef, 'disk')
   memoryChart = createChart(memoryChartRef, 'memory')
+  cpuChart = createChart(cpuChartRef, 'cpu')
 }
 
 onMounted(() => {
@@ -357,6 +388,7 @@ watch(
     useBoxPlotTime,
     useBoxPlotDisk,
     useBoxPlotMemory,
+    useBoxPlotCpu,
   ],
   () => {
     nextTick(() => updateAllCharts())
@@ -367,6 +399,7 @@ onBeforeUnmount(() => {
   if (timeChart) timeChart.destroy()
   if (diskChart) diskChart.destroy()
   if (memoryChart) memoryChart.destroy()
+  if (cpuChart) cpuChart.destroy()
 })
 </script>
 
@@ -398,7 +431,6 @@ onBeforeUnmount(() => {
       />
 
       <div class="flex flex-col gap-8">
-        <!-- Czas -->
         <UCard>
           <template #header>
             <div class="flex items-center justify-between gap-4">
@@ -418,7 +450,25 @@ onBeforeUnmount(() => {
           <canvas ref="timeChartRef" class="w-full" />
         </UCard>
 
-        <!-- Dysk -->
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex items-center gap-2">
+                <span>Zużycie procesora (%)</span>
+                <span v-if="useBoxPlotCpu" class="text-xs text-muted font-normal">
+                  — pojedyncza wartość per run, pudełko zdegenerowane do linii
+                </span>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-sm text-muted">Słupkowy</span>
+                <USwitch v-model="useBoxPlotCpu" />
+                <span class="text-sm text-muted">Pudełkowy</span>
+              </div>
+            </div>
+          </template>
+          <canvas ref="cpuChartRef" class="w-full" />
+        </UCard>
+
         <UCard>
           <template #header>
             <div class="flex items-center justify-between gap-4">
@@ -438,7 +488,6 @@ onBeforeUnmount(() => {
           <canvas ref="diskChartRef" class="w-full" />
         </UCard>
 
-        <!-- Pamięć -->
         <UCard>
           <template #header>
             <div class="flex items-center justify-between gap-4">

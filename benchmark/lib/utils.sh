@@ -1,4 +1,4 @@
-ALL_LOCKFILES="package-lock.json yarn.lock pnpm-lock.yaml bun.lockb bun.lock deno.lock vlt-lock.json cotton.lock"
+ALL_LOCKFILES="package-lock.json yarn.lock pnpm-lock.yaml bun.lockb bun.lock deno.lock vlt-lock.json cotton.lock aube-lock.yaml"
 
 prepare_package_json() {
   local manager="$1"
@@ -9,7 +9,7 @@ prepare_package_json() {
       jq "del(.packageManager) | .packageManager = \"${version}\"" \
         package.json > tmp.json && mv tmp.json package.json
       ;;
-    npm|deno|vlt|cotton)
+    npm|deno|vlt|cotton|aube)
       jq 'del(.packageManager, .pnpm)' \
         package.json > tmp.json && mv tmp.json package.json
       ;;
@@ -75,15 +75,28 @@ save_result() {
 
   disk_usage=$(du -sh "$disk_dir" 2>/dev/null | cut -f1 || echo "N/A")
   local time_data
-  time_data=$(jq '.results[0] // "N/A (failed)"' "/tmp/hyperfine_${manager}_${scenario}.json" 2>/dev/null || echo '"N/A (failed)"')
+  time_data=$(jq '.results[0] // null' "/tmp/hyperfine_${manager}_${scenario}.json" 2>/dev/null || echo 'null')
 
-  cat > "/tmp/result_entry_${manager}_${scenario}.json" <<EOF
-{
-  "time": $time_data,
-  "disk_usage": "$disk_usage",
-  "note": "${config[note]} - $scenario"
-}
-EOF
+  local cpu_usage
+  cpu_usage=$(jq -r '
+    if .results[0] != null and .results[0].mean > 0 then
+      (((.results[0].user + .results[0].system) / .results[0].mean * 100) * 100 | round / 100)
+    else
+      "null"
+    end
+  ' "/tmp/hyperfine_${manager}_${scenario}.json" 2>/dev/null || echo 'null')
+
+  jq -n \
+    --argjson time_data "${time_data}" \
+    --arg disk_usage "$disk_usage" \
+    --argjson cpu "$cpu_usage" \
+    --arg note "${config[note]} - $scenario" \
+    '{
+      time: (if $time_data == null then "N/A (failed)" else $time_data end),
+      disk_usage: $disk_usage,
+      cpu_usage_percent: $cpu,
+      note: $note
+    }' > "/tmp/result_entry_${manager}_${scenario}.json"
 
   jq --arg manager "$manager" --arg scenario "$scenario" --slurpfile entry "/tmp/result_entry_${manager}_${scenario}.json" '
     .scenarios[$scenario][$manager] = $entry[0]
@@ -91,5 +104,5 @@ EOF
 
   rm -f "/tmp/result_entry_${manager}_${scenario}.json"
 
-  echo "Wynik zapisany: $RESULTS_JSON (scenariusz: $scenario | narzędzie: $manager)"
+  echo "Wynik zapisany: $RESULTS_JSON (scenariusz: $scenario | narzędzie: $manager | CPU: ${cpu_usage}%)"
 }

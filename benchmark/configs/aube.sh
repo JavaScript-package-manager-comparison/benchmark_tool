@@ -1,0 +1,11 @@
+declare -A aube_config
+aube_config[version]="aube@latest"
+aube_config[full_install]="aube install --ignore-scripts"
+aube_config[ci_install]="aube ci --ignore-scripts"
+aube_config[offline_install]="aube install --ignore-scripts"
+aube_config[offline_ci_install]="aube ci --ignore-scripts"
+aube_config[clean_cache_cmd]="rm -rf ~/.local/share/aube ~/.cache/aube 2>/dev/null || true"
+aube_config[disk_dir]="node_modules"
+aube_config[lockfile]="aube-lock.yaml"
+aube_config[note]="Aube (latest)"
+aube_config[activate_cmd]="npm install -g --ignore-scripts=false @endevco/aube && aube --version && echo '' >> .npmrc && echo 'trustPolicy=off' >> .npmrc"
