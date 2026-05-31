@@ -8,4 +8,4 @@ pnpm_config[clean_cache_cmd]="pnpm store clear 2>/dev/null || rm -rf \$(pnpm sto
 pnpm_config[disk_dir]="node_modules"
 pnpm_config[lockfile]="pnpm-lock.yaml"
 pnpm_config[note]="pnpm (${pnpm_config[version]})"
-pnpm_config[activate_cmd]="corepack prepare pnpm@latest --activate"
+pnpm_config[activate_cmd]="corepack prepare pnpm@latest --activate && echo '' >> .npmrc && echo 'block-exotic-subdeps=false' >> .npmrc"

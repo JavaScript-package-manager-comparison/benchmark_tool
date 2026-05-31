@@ -4,6 +4,8 @@ prepare_package_json() {
   local manager="$1"
   local version="$2"
 
+  rm -f .npmrc
+
   case "$manager" in
     pnpm)
       jq "del(.packageManager) | .packageManager = \"${version}\"" \
@@ -24,7 +26,7 @@ get_scenario_commands() {
   local scenario="$1"
   local manager="$2"
 
-  local delete_nm="rm -rf node_modules .pnp.*"
+  local delete_nm="find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + 2>/dev/null || true && rm -rf .pnp.*"
   local delete_lock="rm -rf $ALL_LOCKFILES"
   local delete_cache="rm -rf .yarn/cache && ${config[clean_cache_cmd]}"
 
@@ -73,7 +75,8 @@ save_result() {
     disk_dir=".yarn/cache"
   fi
 
-  disk_usage=$(du -sh "$disk_dir" 2>/dev/null | cut -f1 || echo "N/A")
+  disk_usage=$(du -sh --exclude=.git . 2>/dev/null | cut -f1 || echo "N/A")
+
   local time_data
   time_data=$(jq '.results[0] // null' "/tmp/hyperfine_${manager}_${scenario}.json" 2>/dev/null || echo 'null')
 

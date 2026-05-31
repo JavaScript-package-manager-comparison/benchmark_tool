@@ -8,4 +8,4 @@ aube_config[clean_cache_cmd]="rm -rf ~/.local/share/aube ~/.cache/aube 2>/dev/nu
 aube_config[disk_dir]="node_modules"
 aube_config[lockfile]="aube-lock.yaml"
 aube_config[note]="Aube (latest)"
-aube_config[activate_cmd]="npm install -g --ignore-scripts=false @endevco/aube && aube --version && echo '' >> .npmrc && echo 'trustPolicy=off' >> .npmrc"
+aube_config[activate_cmd]="npm install -g --ignore-scripts=false @endevco/aube && aube --version && echo '' >> .npmrc && echo 'trustPolicy=off' >> .npmrc && echo 'block-exotic-subdeps=false' >> .npmrc"

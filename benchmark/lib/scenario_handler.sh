@@ -18,7 +18,7 @@ run_benchmark() {
   if [ -n "${config[activate_cmd]}" ]; then
     echo "→ Aktywacja: ${config[activate_cmd]}"
     eval "${config[activate_cmd]}" || {
-      echo "BŁĄD: Nie udało się aktywować $manager — pomijam"
+      echo "BŁĄD: Nie udało się aktywować $manager"
       return 1
     }
   fi
@@ -47,7 +47,7 @@ run_benchmark() {
       sleep 5
       eval "${config[clean_cache_cmd]}" 2>/dev/null || true
     done || {
-      echo "BŁĄD: Initial install nie powiódł się dla $manager — pomijam"
+      echo "BŁĄD: Initial install nie powiódł się dla $manager"
       return 1
     }
   fi
