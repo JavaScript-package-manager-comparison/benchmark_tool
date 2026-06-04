@@ -1,5 +1,5 @@
 declare -A yarn_berry_config
-yarn_berry_config[version]="yarn@4.14.1"
+yarn_berry_config[version]="yarn@4.16.0"
 yarn_berry_config[full_install]="yarn install"
 yarn_berry_config[ci_install]="yarn install --immutable"
 yarn_berry_config[offline_install]="yarn install"

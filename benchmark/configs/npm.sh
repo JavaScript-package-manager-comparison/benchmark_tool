@@ -1,5 +1,5 @@
 declare -A npm_config
-npm_config[version]="npm@11.13"
+npm_config[version]="npm@11.16"
 npm_config[full_install]="npm install --force --legacy-peer-deps --ignore-scripts"
 npm_config[ci_install]="npm ci --force --legacy-peer-deps --ignore-scripts"
 npm_config[offline_install]="npm install --prefer-offline --force --legacy-peer-deps --ignore-scripts"
@@ -8,4 +8,4 @@ npm_config[clean_cache_cmd]="npm cache clean --force"
 npm_config[disk_dir]="node_modules"
 npm_config[lockfile]="package-lock.json"
 npm_config[note]="npm (${npm_config[version]})"
-npm_config[activate_cmd]="corepack enable && corepack prepare npm@11.13 --activate"
+npm_config[activate_cmd]="corepack enable && corepack prepare npm@latest --activate"

@@ -9,18 +9,3 @@ export const benchmarksList = defineQueryOptions(() => ({
     )
   },
 }))
-
-// export const benchmarkById = defineQueryOptions(
-//   ({ benchmarkId }: { benchmarkId: number }) => ({
-//     key: KEYS.detailById(benchmarkId),
-//     query: async () => {
-//       return $fetch(`/api/benchmarks/${benchmarkId}`).catch((error) =>
-//         handleApiError(
-//           error,
-//           'Wystąpił błąd podczas pobierania konkretnego benchmarku',
-//         ),
-//       )
-//     },
-//     enabled: Boolean(benchmarkId) && benchmarkId > 0,
-//   }),
-// )

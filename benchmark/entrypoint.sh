@@ -66,7 +66,7 @@ for REPO_URL in $REPO_URLS; do
   project_dir="/project_${repo_name}"
 
   echo ""
-  echo ">>> ROZPOCZYNAM BADANIE REPOZYTORIUM: $repo_name <<<"
+  echo ">>> Badane repozytorium: $repo_name <<<"
   echo ""
 
   echo "Cloning repo: $REPO_URL into $project_dir"

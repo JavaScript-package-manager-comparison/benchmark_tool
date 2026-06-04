@@ -1,5 +1,5 @@
 declare -A deno_config
-deno_config[version]="deno@2.7.14"
+deno_config[version]="deno@2.8.1"
 deno_config[full_install]="deno install --node-modules-dir=auto"
 deno_config[ci_install]="deno install --node-modules-dir=auto --frozen"
 deno_config[offline_install]="DENO_NO_UPDATE_CHECK=1 deno install --node-modules-dir=auto"

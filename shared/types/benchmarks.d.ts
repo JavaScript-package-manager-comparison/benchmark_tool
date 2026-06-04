@@ -14,6 +14,7 @@ export interface BenchmarkResult {
         [packageManager: string]: {
           time: any
           disk_usage: string
+          cpu_usage_percent: number | string | null
           note: string
         }
       }

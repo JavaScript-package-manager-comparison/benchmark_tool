@@ -26,9 +26,9 @@ get_scenario_commands() {
   local scenario="$1"
   local manager="$2"
 
-  local delete_nm="find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + 2>/dev/null || true && rm -rf .pnp.*"
+  local delete_nm="find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + 2>/dev/null || true && rm -rf .pnp.* .aube"
   local delete_lock="rm -rf $ALL_LOCKFILES"
-  local delete_cache="rm -rf .yarn/cache && ${config[clean_cache_cmd]}"
+  local delete_cache="rm -rf .yarn/cache && ${config[clean_cache_cmd]:-true}"
 
   case "$scenario" in
     clean)
@@ -64,6 +64,32 @@ get_scenario_commands() {
       PREPARE_CMD="true"
       ;;
   esac
+
+  if jq -e '.workspaces != null' package.json >/dev/null 2>&1 && { [ -d "packages" ] || [ -d "plugins" ]; }; then
+
+    INSTALL_CMD="${INSTALL_CMD// --frozen-lockfile/}"
+    INSTALL_CMD="${INSTALL_CMD// --immutable/}"
+    INSTALL_CMD="${INSTALL_CMD// --frozen/}"
+    if [[ "$INSTALL_CMD" == *"npm ci"* ]]; then
+      INSTALL_CMD="${INSTALL_CMD/npm ci/npm install}"
+    fi
+
+    case "$manager" in
+      aube)
+        INSTALL_CMD="${INSTALL_CMD/aube ci/aube install}"
+        ;;
+      vlt)
+        INSTALL_CMD="${INSTALL_CMD} --recursive"
+        ;;
+      yarn-zpm)
+        yarn config set enableMigrationMode true 2>/dev/null || true
+        ;;
+    esac
+  else
+    if [[ "$manager" == "yarn-zpm" ]]; then
+        yarn config set enableMigrationMode false 2>/dev/null || true
+    fi
+  fi
 }
 
 save_result() {
