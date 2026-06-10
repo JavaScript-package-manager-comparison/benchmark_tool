@@ -5,7 +5,7 @@ services:
       - ./results:/results
     environment:
       # all repos
-      - REPO_URLS=https://github.com/JavaScript-package-manager-comparison/art-design-pro.git https://github.com/JavaScript-package-manager-comparison/metacubexd.git https://github.com/JavaScript-package-manager-comparison/superset.git
+      #      - REPO_URLS=https://github.com/JavaScript-package-manager-comparison/art-design-pro.git https://github.com/JavaScript-package-manager-comparison/metacubexd.git https://github.com/JavaScript-package-manager-comparison/superset.git
       #
       # small repo only
       #      - REPO_URLS=https://github.com/JavaScript-package-manager-comparison/art-design-pro.git
@@ -15,5 +15,7 @@ services:
       #
       # big repo only
       #      - REPO_URLS=https://github.com/JavaScript-package-manager-comparison/superset.git
+      # medium and big
+      - REPO_URLS=https://github.com/JavaScript-package-manager-comparison/metacubexd.git https://github.com/JavaScript-package-manager-comparison/superset.git
       - RUNS=10
       - WARMUP=1

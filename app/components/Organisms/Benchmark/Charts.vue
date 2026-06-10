@@ -53,10 +53,15 @@ const useBoxPlotCpu = ref<boolean>(false)
 
 const benchmarkItems = computed(() => {
   return (
-      store.benchmarks?.map((b) => ({
-        label: `${b.projectKey} — ${new Date(b.startTime).toLocaleDateString('pl-PL')} ${new Date(b.startTime).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}`,
-        value: b.filename,
-      })) || []
+    store.benchmarks?.map((b) => ({
+      label: `${b.projectKey} — ${new Date(b.startTime).toLocaleDateString('pl-PL')} ${new Date(
+        b.startTime,
+      ).toLocaleTimeString('pl-PL', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })}`,
+      value: b.filename,
+    })) || []
   )
 })
 
@@ -107,65 +112,87 @@ interface BarDataset {
   borderWidth: number
 }
 
+function getMedian(values: number[]): number {
+  if (values.length === 0) return 0
+  const sorted = [...values].sort((a, b) => a - b)
+  const mid = Math.floor(sorted.length / 2)
+  return sorted.length % 2 === 0
+    ? (sorted[mid - 1] + sorted[mid]) / 2
+    : sorted[mid]
+}
+
+function getMean(values: number[]): number {
+  if (values.length === 0) return 0
+  const sum = values.reduce((a, b) => a + b, 0)
+  return sum / values.length
+}
+
 function getFilteredTimesArray(entry: any): number[] | null {
   const times = entry?.time?.times
   const codes = entry?.time?.exit_codes
 
-  if (!Array.isArray(times) || !times.length) return null
+  if (!(Array.isArray(times) && times.length)) return null
 
-  // Jeśli nie ma tablicy exit_codes zwraca wszystko
   if (!Array.isArray(codes)) return times as number[]
 
-  // Filtrowanie gdzie exit_code === 0
   const validTimes = times.filter((_, index) => codes[index] === 0)
 
-  // Jeśli po filtrowaniu nie ma wyników zwraca null
-  return validTimes.length > 0 ? validTimes as number[] : null
+  return validTimes.length > 0 ? (validTimes as number[]) : null
 }
 
 function getFilteredMemoryArray(entry: any): number[] | null {
   const arr = entry?.time?.memory_usage_byte
   const codes = entry?.time?.exit_codes
 
-  if (!Array.isArray(arr) || !arr.length) return null
+  if (!(Array.isArray(arr) && arr.length)) return null
 
   const validArr = Array.isArray(codes)
-      ? arr.filter((_, index) => codes[index] === 0)
-      : arr
+    ? arr.filter((_, index) => codes[index] === 0)
+    : arr
 
   if (validArr.length === 0) return null
 
   return validArr.map((b: number) => Math.round(b / 1024 / 1024))
 }
 
-function getMeanFromFilteredTimes(entry: any): number | null {
-  const validTimes = getFilteredTimesArray(entry);
-  if (!validTimes || validTimes.length === 0) return null;
+function getBarTimeMedian(entry: any): number | null {
+  const codes = entry?.time?.exit_codes
+  let hasValidRuns = true
 
-  // Wyliczenie średniej z poprawnych czasów
-  const sum = validTimes.reduce((a, b) => a + b, 0);
-  return sum / validTimes.length;
+  if (Array.isArray(codes)) {
+    hasValidRuns = codes.some((c: number) => c === 0)
+  }
+
+  // Zwracamy null jeśli wszystkie zakończyły się błędem
+  if (!hasValidRuns) return null
+
+  if (typeof entry?.time?.median === 'number') {
+    return entry.time.median
+  }
+
+  const validTimes = getFilteredTimesArray(entry)
+  return validTimes ? getMedian(validTimes) : null
 }
 
 function getDiskArray(entry: any): number[] | null {
-  const validTimes = getFilteredTimesArray(entry);
-  if (!validTimes) return null;
+  const validTimes = getFilteredTimesArray(entry)
+  if (!validTimes) return null
 
   const val = parseDiskUsage(entry?.disk_usage)
   return val === null ? null : [val]
 }
 
 function getCpuArray(entry: any): number[] | null {
-  const validTimes = getFilteredTimesArray(entry);
-  if (!validTimes) return null;
+  const validTimes = getFilteredTimesArray(entry)
+  if (!validTimes) return null
 
   const val = entry?.cpu_usage_percent
   return typeof val === 'number' ? [val] : null
 }
 
 function makeBoxDatasets(
-    getValue: (entry: any) => number[] | null,
-    alphaColor = true,
+  getValue: (entry: any) => number[] | null,
+  alphaColor = true,
 ): BoxDataset[] {
   return tools.value.map((tool) => ({
     label: tool,
@@ -182,9 +209,9 @@ function makeBoxDatasets(
 }
 
 function makeBoxScenarioDatasets(
-    scen: string,
-    label: string,
-    getValue: (entry: any) => number[] | null,
+  scen: string,
+  label: string,
+  getValue: (entry: any) => number[] | null,
 ): BoxDataset[] {
   return [
     {
@@ -194,7 +221,7 @@ function makeBoxScenarioDatasets(
         return entry ? getValue(entry) : null
       }),
       backgroundColor: tools.value.map(
-          (tool) => (toolColors[tool] || '#64748b') + '55',
+        (tool) => (toolColors[tool] || '#64748b') + '55',
       ),
       borderColor: tools.value.map((tool) => toolColors[tool] || '#64748b'),
       borderWidth: 2,
@@ -205,7 +232,7 @@ function makeBoxScenarioDatasets(
 }
 
 function makeBarDatasets(
-    getValue: (entry: any) => number | null,
+  getValue: (entry: any) => number | null,
 ): BarDataset[] {
   return tools.value.map((tool) => ({
     label: tool,
@@ -220,9 +247,9 @@ function makeBarDatasets(
 }
 
 function makeBarScenarioDatasets(
-    scen: string,
-    label: string,
-    getValue: (entry: any) => number | null,
+  scen: string,
+  label: string,
+  getValue: (entry: any) => number | null,
 ): BarDataset[] {
   return [
     {
@@ -240,8 +267,8 @@ function makeBarScenarioDatasets(
 
 function getDiskMin(datasets: BarDataset[]): number {
   const allValues = datasets
-      .flatMap((d) => d.data)
-      .filter((v): v is number => typeof v === 'number')
+    .flatMap((d) => d.data)
+    .filter((v): v is number => typeof v === 'number')
   if (!allValues.length) return 0
   const min = Math.min(...allValues)
   const max = Math.max(...allValues)
@@ -249,32 +276,34 @@ function getDiskMin(datasets: BarDataset[]): number {
 }
 
 const timeBoxDatasets = computed(() => makeBoxDatasets(getFilteredTimesArray))
-const timeBarDatasets = computed(() => makeBarDatasets(getMeanFromFilteredTimes))
+const timeBarDatasets = computed(() => makeBarDatasets(getBarTimeMedian))
 
 const diskBoxDatasets = computed(() => makeBoxDatasets(getDiskArray))
 const diskBarDatasets = computed(() =>
-    makeBarDatasets((e) => {
-      const validTimes = getFilteredTimesArray(e);
-      if (!validTimes) return null;
-      return parseDiskUsage(e?.disk_usage)
-    }),
+  makeBarDatasets((e) => {
+    const validTimes = getFilteredTimesArray(e)
+    if (!validTimes) return null
+    return parseDiskUsage(e?.disk_usage)
+  }),
 )
 
-const memoryBoxDatasets = computed(() => makeBoxDatasets(getFilteredMemoryArray))
+const memoryBoxDatasets = computed(() =>
+  makeBoxDatasets(getFilteredMemoryArray),
+)
 const memoryBarDatasets = computed(() =>
-    makeBarDatasets((e) => {
-      const arr = getFilteredMemoryArray(e)
-      return arr?.length ? arr[0] : null
-    }),
+  makeBarDatasets((e) => {
+    const arr = getFilteredMemoryArray(e)
+    return arr?.length ? getMean(arr) : null
+  }),
 )
 
 const cpuBoxDatasets = computed(() => makeBoxDatasets(getCpuArray))
 const cpuBarDatasets = computed(() =>
-    makeBarDatasets((e) => {
-      const validTimes = getFilteredTimesArray(e);
-      if (!validTimes) return null;
-      return typeof e?.cpu_usage_percent === 'number' ? e.cpu_usage_percent : null
-    }),
+  makeBarDatasets((e) => {
+    const validTimes = getFilteredTimesArray(e)
+    if (!validTimes) return null
+    return typeof e?.cpu_usage_percent === 'number' ? e.cpu_usage_percent : null
+  }),
 )
 
 let timeChart: Chart | null = null
@@ -290,8 +319,8 @@ const cpuChartRef = ref<HTMLCanvasElement | null>(null)
 type ChartMetric = 'time' | 'disk' | 'memory' | 'cpu'
 
 function createChart(
-    canvasRef: Ref<HTMLCanvasElement | null>,
-    metric: ChartMetric,
+  canvasRef: Ref<HTMLCanvasElement | null>,
+  metric: ChartMetric,
 ) {
   if (!canvasRef.value) return null
   const ctx = canvasRef.value.getContext('2d')
@@ -302,16 +331,21 @@ function createChart(
   const scen = selectedView.value
 
   const useBox =
-      metric === 'time'
-          ? useBoxPlotTime.value
-          : metric === 'disk'
-              ? useBoxPlotDisk.value
-              : metric === 'cpu'
-                  ? useBoxPlotCpu.value
-                  : useBoxPlotMemory.value
+    metric === 'time'
+      ? useBoxPlotTime.value
+      : metric === 'disk'
+        ? useBoxPlotDisk.value
+        : metric === 'cpu'
+          ? useBoxPlotCpu.value
+          : useBoxPlotMemory.value
 
   const yLabel =
-      metric === 'time' ? 'Czas (s)' : metric === 'cpu' ? 'CPU (%)' : 'MB'
+    metric === 'time' ? 'Czas (s)' : metric === 'cpu' ? 'CPU (%)' : 'MB'
+
+  const tickFont = { size: 16, weight: 'bold' }
+  const titleFont = { size: 20, weight: 'bold' }
+  const legendFont = { size: 16, weight: 'bold' }
+  const textColor = '#000000'
 
   if (useBox) {
     const datasetsMap: Record<ChartMetric, BoxDataset[]> = {
@@ -321,9 +355,11 @@ function createChart(
       cpu: cpuBoxDatasets.value,
     }
     const scenarioFnMap: Record<ChartMetric, (s: string) => BoxDataset[]> = {
-      time: (s) => makeBoxScenarioDatasets(s, 'Czas (s)', getFilteredTimesArray),
+      time: (s) =>
+        makeBoxScenarioDatasets(s, 'Czas (s)', getFilteredTimesArray),
       disk: (s) => makeBoxScenarioDatasets(s, 'Dysk (MB)', getDiskArray),
-      memory: (s) => makeBoxScenarioDatasets(s, 'Pamięć (MB)', getFilteredMemoryArray),
+      memory: (s) =>
+        makeBoxScenarioDatasets(s, 'Pamięć (MB)', getFilteredMemoryArray),
       cpu: (s) => makeBoxScenarioDatasets(s, 'CPU (%)', getCpuArray),
     }
     const datasets = isAll ? datasetsMap[metric] : scenarioFnMap[metric](scen)
@@ -334,13 +370,40 @@ function createChart(
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        color: textColor,
         plugins: {
-          legend: { display: isAll, position: 'top' },
+          legend: {
+            display: isAll,
+            position: 'top',
+            labels: {
+              font: legendFont,
+              color: textColor,
+            },
+          },
           tooltip: { mode: 'index', intersect: false },
         },
         scales: {
-          x: { ticks: { autoSkip: false, maxRotation: 45 } },
-          y: { beginAtZero: true, title: { display: true, text: yLabel } },
+          x: {
+            ticks: {
+              autoSkip: false,
+              maxRotation: 45,
+              font: tickFont,
+              color: textColor,
+            },
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              font: tickFont,
+              color: textColor,
+            },
+            title: {
+              display: true,
+              text: yLabel,
+              font: titleFont,
+              color: textColor,
+            },
+          },
         },
       } as any,
     }) as Chart
@@ -353,25 +416,24 @@ function createChart(
     cpu: cpuBarDatasets.value,
   }
   const scenarioFnMap: Record<ChartMetric, (s: string) => BarDataset[]> = {
-    time: (s) =>
-        makeBarScenarioDatasets(s, 'Czas (s)', getMeanFromFilteredTimes),
+    time: (s) => makeBarScenarioDatasets(s, 'Czas (s)', getBarTimeMedian),
     disk: (s) =>
-        makeBarScenarioDatasets(s, 'Dysk (MB)', (e) => {
-          const valid = getFilteredTimesArray(e);
-          return valid ? parseDiskUsage(e?.disk_usage) : null;
-        }),
+      makeBarScenarioDatasets(s, 'Dysk (MB)', (e) => {
+        const valid = getFilteredTimesArray(e)
+        return valid ? parseDiskUsage(e?.disk_usage) : null
+      }),
     memory: (s) =>
-        makeBarScenarioDatasets(s, 'Pamięć (MB)', (e) => {
-          const arr = getFilteredMemoryArray(e)
-          return arr?.length ? arr[0] : null
-        }),
+      makeBarScenarioDatasets(s, 'Pamięć (MB)', (e) => {
+        const arr = getFilteredMemoryArray(e)
+        return arr?.length ? getMean(arr) : null
+      }),
     cpu: (s) =>
-        makeBarScenarioDatasets(s, 'CPU (%)', (e) => {
-          const valid = getFilteredTimesArray(e);
-          return valid && typeof e?.cpu_usage_percent === 'number'
-              ? e.cpu_usage_percent
-              : null
-        }),
+      makeBarScenarioDatasets(s, 'CPU (%)', (e) => {
+        const valid = getFilteredTimesArray(e)
+        return valid && typeof e?.cpu_usage_percent === 'number'
+          ? e.cpu_usage_percent
+          : null
+      }),
   }
 
   const datasets = isAll ? datasetsMap[metric] : scenarioFnMap[metric](scen)
@@ -383,16 +445,41 @@ function createChart(
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      color: textColor,
       plugins: {
-        legend: { display: isAll, position: 'top' as const },
+        legend: {
+          display: isAll,
+          position: 'top' as const,
+          labels: {
+            font: legendFont,
+            color: textColor,
+          },
+        },
         tooltip: { mode: 'index', intersect: false },
       },
       scales: {
-        x: { stacked: false, ticks: { autoSkip: false, maxRotation: 45 } },
+        x: {
+          stacked: false,
+          ticks: {
+            autoSkip: false,
+            maxRotation: 45,
+            font: tickFont,
+            color: textColor,
+          },
+        },
         y: {
           beginAtZero: metric !== 'disk',
           ...(metric === 'disk' ? { min: diskMin } : {}),
-          title: { display: true, text: yLabel },
+          ticks: {
+            font: tickFont,
+            color: textColor,
+          },
+          title: {
+            display: true,
+            text: yLabel,
+            font: titleFont,
+            color: textColor,
+          },
         },
       },
     },
@@ -418,17 +505,17 @@ onMounted(() => {
 })
 
 watch(
-    [
-      selectedFilename,
-      selectedView,
-      useBoxPlotTime,
-      useBoxPlotDisk,
-      useBoxPlotMemory,
-      useBoxPlotCpu,
-    ],
-    () => {
-      nextTick(() => updateAllCharts())
-    },
+  [
+    selectedFilename,
+    selectedView,
+    useBoxPlotTime,
+    useBoxPlotDisk,
+    useBoxPlotMemory,
+    useBoxPlotCpu,
+  ],
+  () => {
+    nextTick(() => updateAllCharts())
+  },
 )
 
 onBeforeUnmount(() => {
@@ -445,26 +532,21 @@ onBeforeUnmount(() => {
       <template #header>
         <div class="flex items-center justify-between">
           <h1 class="text-2xl font-bold">Benchmarki menedżerów pakietów</h1>
-          <UTabs
-              v-if="benchmarkItems.length > 1"
-              v-model="selectedFilename"
-              :items="benchmarkItems"
-          />
+          <UTabs v-if="benchmarkItems.length > 1" v-model="selectedFilename" :items="benchmarkItems"/>
           <span v-else class="text-sm text-gray-500">
             Projekt: {{ currentBenchmark?.projectKey }} | Run:
-            {{ currentBenchmark?.startTime ? new Date(currentBenchmark.startTime).toLocaleString('pl-PL', { dateStyle: 'short', timeStyle: 'short' }) : '' }}
+            {{
+              currentBenchmark?.startTime ? new Date(currentBenchmark.startTime).toLocaleString('pl-PL', {
+                dateStyle:
+                    'short', timeStyle: 'short'
+              }) : ''
+            }}
           </span>
         </div>
       </template>
 
-      <UTabs
-          v-model="selectedView"
-          :items="viewTabs"
-          color="neutral"
-          variant="link"
-          :content="false"
-          class="mb-6 w-full"
-      />
+      <UTabs v-model="selectedView" :items="viewTabs" color="neutral" variant="link" :content="false"
+             class="mb-6 w-full"/>
 
       <div class="flex flex-col gap-8">
         <UCard>
@@ -478,12 +560,12 @@ onBeforeUnmount(() => {
               </div>
               <div class="flex items-center gap-2 shrink-0">
                 <span class="text-sm text-muted">Słupkowy</span>
-                <USwitch v-model="useBoxPlotTime" />
+                <USwitch v-model="useBoxPlotTime"/>
                 <span class="text-sm text-muted">Pudełkowy</span>
               </div>
             </div>
           </template>
-          <canvas ref="timeChartRef" class="w-full" />
+          <canvas ref="timeChartRef" class="w-full"/>
         </UCard>
 
         <UCard>
@@ -497,12 +579,12 @@ onBeforeUnmount(() => {
               </div>
               <div class="flex items-center gap-2 shrink-0">
                 <span class="text-sm text-muted">Słupkowy</span>
-                <USwitch v-model="useBoxPlotCpu" />
+                <USwitch v-model="useBoxPlotCpu"/>
                 <span class="text-sm text-muted">Pudełkowy</span>
               </div>
             </div>
           </template>
-          <canvas ref="cpuChartRef" class="w-full" />
+          <canvas ref="cpuChartRef" class="w-full"/>
         </UCard>
 
         <UCard>
@@ -516,12 +598,12 @@ onBeforeUnmount(() => {
               </div>
               <div class="flex items-center gap-2 shrink-0">
                 <span class="text-sm text-muted">Słupkowy</span>
-                <USwitch v-model="useBoxPlotDisk" />
+                <USwitch v-model="useBoxPlotDisk"/>
                 <span class="text-sm text-muted">Pudełkowy</span>
               </div>
             </div>
           </template>
-          <canvas ref="diskChartRef" class="w-full" />
+          <canvas ref="diskChartRef" class="w-full"/>
         </UCard>
 
         <UCard>
@@ -535,12 +617,12 @@ onBeforeUnmount(() => {
               </div>
               <div class="flex items-center gap-2 shrink-0">
                 <span class="text-sm text-muted">Słupkowy</span>
-                <USwitch v-model="useBoxPlotMemory" />
+                <USwitch v-model="useBoxPlotMemory"/>
                 <span class="text-sm text-muted">Pudełkowy</span>
               </div>
             </div>
           </template>
-          <canvas ref="memoryChartRef" class="w-full" />
+          <canvas ref="memoryChartRef" class="w-full"/>
         </UCard>
       </div>
     </UCard>

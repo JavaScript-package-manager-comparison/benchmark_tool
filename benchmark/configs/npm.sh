@@ -1,5 +1,5 @@
 declare -A npm_config
-npm_config[version]="npm@11.16"
+npm_config[version]="npm@11.16.0"
 npm_config[full_install]="npm install --force --legacy-peer-deps --ignore-scripts"
 npm_config[ci_install]="npm ci --force --legacy-peer-deps --ignore-scripts"
 npm_config[offline_install]="npm install --prefer-offline --force --legacy-peer-deps --ignore-scripts"

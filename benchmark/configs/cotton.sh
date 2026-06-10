@@ -1,5 +1,5 @@
 declare -A cotton_config
-cotton_config[version]="cotton@git"
+cotton_config[version]="cotton@0.1.0"
 cotton_config[full_install]="cotton install"
 cotton_config[ci_install]="cotton install"
 cotton_config[offline_install]="cotton install"

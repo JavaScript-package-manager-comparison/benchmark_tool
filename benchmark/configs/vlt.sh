@@ -1,5 +1,5 @@
 declare -A vlt_config
-vlt_config[version]="1.0.0-rc.31"
+vlt_config[version]="1.0.0-rc.32"
 vlt_config[full_install]="vlt install --yes --force"
 vlt_config[ci_install]="vlt ci --yes --force"
 vlt_config[offline_install]="vlt install --yes --force"
